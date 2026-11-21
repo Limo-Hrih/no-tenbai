@@ -325,8 +325,8 @@ select {{ margin-left:auto; }}
 .chead .hud {{ font-size:11px; }}
 .chead h2 {{ font-size:22px; margin:0; line-height:1.35; color:#0d2147; }}
 .clead {{ margin:2px 0 0; font-size:12px; color:var(--sub); }} .clead b {{ color:var(--mint-soft); }}
-.corner-resale {{ background:linear-gradient(135deg,#fff7f0,#fff); border:2px solid #ffc9a8; border-radius:16px; padding:14px 16px 10px; }}
-.corner-resale .chead h2 {{ color:#c4210f; }}
+.corner-resale {{ background:#fff; border:1px solid #c7d6e6; border-radius:16px; padding:14px 16px 10px; }}
+.corner-resale .chead h2 {{ color:#0d2147; }}
 .more {{ margin:12px 0 2px; }}
 .more summary {{ cursor:pointer; font-size:13px; font-weight:700; color:#0d2147; padding:6px 0; }}
 .tg-big {{ background:#fff; color:var(--sale); border:1px solid var(--sale); font-size:10px; }}
@@ -390,8 +390,8 @@ footer p {{ margin:4px 0; }}
 </section>
 <section class="corner corner-resale">
   <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
-    <h2>再販がかかった！ いま定価以下で買えるガンプラ</h2>
-    <p class="clead">公式の再販リストやファンサイトの再販報告に載っていて、<b>いまAmazonで定価以下・定価並みで買える</b>ものです。{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
+    <h2>最新再販ガンプラ情報</h2>
+    <p class="clead">バンダイ公式の再販リストとファンサイトの再販報告のうち、Amazonで定価以下・定価並みで買える商品です。{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
   <div class="grid grid-feat">{featured_html}</div>
   <details class="more">
     <summary>今週の再販予想・入荷報告／今期の公式再販リストを見る</summary>
