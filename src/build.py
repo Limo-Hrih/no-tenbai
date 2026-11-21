@@ -66,7 +66,9 @@ def main() -> None:
         for r in grp["items"]:
             r.setdefault("asin", by_name.get(r["name"]))
 
-    html = render(fair, resale, datetime.now(JST), sample=args.sample)
+    pred_file = ROOT / "data" / "predictions.json"
+    pred = json.loads(pred_file.read_text(encoding="utf-8")) if pred_file.exists() else None
+    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

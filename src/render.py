@@ -45,7 +45,7 @@ def card(p: Product, stamp: str) -> str:
         badge = '<div class="badge badge-even"><span class="badge-l">Amazon</span><span class="badge-n">本体販売</span></div>'
     lp_label = "メーカー希望小売価格" if p.list_price_source == "official" else "参考価格"
     seller = '<span class="chip chip-amz">Amazon.co.jp が販売</span>' if b.is_amazon \
-        else '<span class="chip">定価以内のマーケットプレイス出品</span>'
+        else '<span class="chip">定価に近いマーケットプレイス出品</span>'
     pts = f'<span class="pts">{b.points:,}pt</span>' if b.points else ""
     img = f'<img src="{e(p.image)}" alt="" loading="lazy">' if p.image else '<div class="noimg">NO IMAGE</div>'
     resale = f'<span class="chip chip-resale">{e(p.resale_quarter)} 公式再販</span>' if p.resale_quarter else ""
@@ -74,7 +74,7 @@ def resale_rows(resale: list[dict], fair_by_asin: dict[str, Product], stamp: str
         p = fair_by_asin.get(r.get("asin") or "")
         if p and p.best:
             status = (f'<a class="status ok" href="{e(p.url)}" target="_blank" rel="sponsored noopener">'
-                      f'Amazonで定価以下 {yen(p.best.price)}<small>（{e(stamp)}時点）</small></a>')
+                      f'{buy_label(p)}<small>（{e(stamp)}時点）</small></a>')
         else:
             status = '<span class="status wait">いまは定価以下の出品なし・再販待ち</span>'
         before = r.get("price_before")
@@ -87,8 +87,45 @@ def resale_rows(resale: list[dict], fair_by_asin: dict[str, Product], stamp: str
     return "\n".join(rows)
 
 
+def buy_label(p: Product) -> str:
+    if p.list_price and p.best.price > p.list_price:
+        return f"Amazonで定価に近い値段 {yen(p.best.price)}"
+    return f"Amazonで定価以下 {yen(p.best.price)}"
+
+
+def _norm(s: str) -> str:
+    s = re.sub(r"1/\d+", "", s)
+    return re.sub(r"[\s・()（）\[\]]", "", s).upper()
+
+
+def predictions_html(pred: dict | None, fair: list[Product]) -> str:
+    if not pred:
+        return ""
+    fair_by_title = {p.title: p for p in fair}
+    days = []
+    for d in pred["days"]:
+        lis = []
+        for name in d["items"]:
+            key = _norm(name.split("（")[0])
+            hit = next((p for t, p in fair_by_title.items() if key and key in _norm(t)), None)
+            tail = (f' <a class="status ok" href="{e(hit.url)}" target="_blank" rel="sponsored noopener">'
+                    f'{buy_label(hit)}</a>') if hit else ""
+            lis.append(f"<li>{e(name)}{tail}</li>")
+        cls = "pk-pred" if d["kind"] == "予測" else "pk-real"
+        days.append(f'''<div class="pday"><div class="pdate">{e(d["date"])}
+  <span class="pk {cls}">{e(d["kind"])}</span></div><ul>{"".join(lis)}</ul></div>''')
+    srcs = "・".join(f'<a href="{e(s["url"])}" target="_blank" rel="noopener">{e(s["name"])}</a>'
+                    for s in pred["sources"])
+    return f'''
+<section class="rq pred">
+  <h3>今週の再販予想・入荷報告 <small>{e(pred["week"])}</small></h3>
+  <p class="src">{e(pred["note"])}<br>出典：{srcs}</p>
+  <div class="pgrid">{"".join(days)}</div>
+</section>'''
+
+
 def render(fair: list[Product], resale_groups: list[dict], generated_at: datetime,
-           sample: bool = False) -> str:
+           sample: bool = False, pred: dict | None = None) -> str:
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
     cards = "\n".join(card(p, stamp) for p in fair) or '<p class="empty">いま該当する商品はありません。</p>'
@@ -176,6 +213,13 @@ select {{ margin-left:auto; }}
 .newbox h2 {{ margin:0 0 12px; font-size:18px; color:var(--red); }}
 .newbox h2 small {{ color:var(--sub); font-weight:400; font-size:13px; }}
 .lp sup {{ font-size:9px; }}
+.pred {{ border:2px solid var(--blue); }}
+.pgrid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; margin-bottom:10px; }}
+.pday {{ background:var(--bg); border-radius:10px; padding:10px 14px; }}
+.pdate {{ font-weight:800; margin-bottom:4px; }}
+.pday ul {{ margin:0; padding-left:18px; font-size:14px; }} .pday li {{ margin:3px 0; }}
+.pk {{ font-size:11px; border-radius:999px; padding:1px 8px; margin-left:6px; font-weight:700; vertical-align:2px; }}
+.pk-pred {{ background:#e6edf9; color:var(--blue); }} .pk-real {{ background:#e3f4ef; color:var(--green); }}
 .price-row {{ display:flex; align-items:baseline; gap:8px; margin-top:auto; }}
 .price {{ font-size:22px; font-weight:800; }}
 .pts {{ font-size:12px; color:var(--sub); }}
@@ -215,7 +259,7 @@ footer p {{ margin:4px 0; }}
   <p class="tag">{SITE_TAGLINE}</p>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" aria-selected="true" data-t="fair">いま定価で買える</button>
-    <button class="tab" role="tab" aria-selected="false" data-t="resale">今期の公式再販</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="resale">再販情報</button>
   </div>
 </div></header>
 <main>
@@ -233,7 +277,8 @@ footer p {{ margin:4px 0; }}
   <div class="grid" id="grid">{cards}</div>
 </section>
 <section id="resale" hidden>
-  <p class="lead">バンダイ公式が発表している、一般販売の再販商品です。<b>Amazon本体などで定価以下で買えるようになったもの</b>にだけリンクを付けています。</p>
+  <p class="lead">今週の再販予想と、バンダイ公式が発表している今期の再販商品です。<b>Amazonで定価以下・定価に近い値段で買えるもの</b>にだけリンクを付けています。</p>
+  {predictions_html(pred, fair)}
   {"".join(resale_html)}
 </section>
 <section class="about">

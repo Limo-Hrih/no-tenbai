@@ -1,0 +1,18 @@
+{
+ "week": "2026年11月第3〜4週",
+ "note": "店頭への再販入荷は公式には予告されません。以下はファンサイトの予測と入荷報告をまとめた参考情報です。",
+ "sources": [
+  {"name": "おきちゃんのガンプラ堂「2026年11月 ガンプラ再販カレンダー」",
+   "url": "https://kaigoshinootakunaburogu.com/gunpla-resale-calendar-2026november"},
+  {"name": "おきちゃんのガンプラ堂「26年11月21日(土)【ガンダムベース】ガンプラ再販情報」",
+   "url": "https://kaigoshinootakunaburogu.com/gunpla-resale-gundambase-2026november21th"}
+ ],
+ "days": [
+  {"date": "11月19日（木）", "kind": "予測", "items": [
+    "HGUC ガンダムGP02A サイサリス", "HG R03 バスターガンダム", "HG R08 カラミティガンダム"]},
+  {"date": "11月21日（土）", "kind": "入荷報告", "items": [
+    "HGUC リ・ガズィ（ガンダムベース新千歳空港店）",
+    "HGUC ヤクト・ドーガ（ギュネイ・ガス専用機）（同）",
+    "HG R03 バスターガンダム（同）"]}
+ ]
+}
