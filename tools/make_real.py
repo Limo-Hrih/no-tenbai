@@ -62,6 +62,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("today")
     ap.add_argument("--prev")
+    ap.add_argument("--prev-asins", help="前日にAmazon本体が販売していたASINのJSON配列ファイル")
+    ap.add_argument("--save-asins", help="今日Amazon本体が販売しているASINをこのJSONに保存")
     ap.add_argument("--out", default=str(Path.home() / "preview_real.html"))
     args = ap.parse_args()
 
@@ -93,8 +95,12 @@ def main() -> None:
 
     # 前日にAmazon本体の販売があったASIN（--prev）を「前回の状態」として渡す
     state = data / "sample_prev_amazon_asins.json.real"
+    prev = None
     if args.prev:
         prev = [r["asin"] for r in parse(Path(args.prev)) if r["amazon"]]
+    elif args.prev_asins and Path(args.prev_asins).exists():
+        prev = json.loads(Path(args.prev_asins).read_text())
+    if prev is not None:
         state.write_text(json.dumps(prev))
     elif state.exists():
         state.unlink()
@@ -103,7 +109,10 @@ def main() -> None:
                     "--out", args.out], check=True)
     today_amz = [r for r in rows if r["amazon"]]
     print(f"Amazon本体の販売: {len(today_amz)}点")
-    if args.prev:
+    if args.save_asins:
+        Path(args.save_asins).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.save_asins).write_text(json.dumps(sorted(r["asin"] for r in today_amz), indent=0))
+    if prev is not None:
         new = [r for r in today_amz if r["asin"] not in set(prev)]
         print(f"今日から買えるようになった: {len(new)}点")
         for r in new:
