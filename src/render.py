@@ -261,6 +261,7 @@ header {{ background:#fff; border-bottom:2px solid var(--mint); padding:10px 20p
 .vsep {{ width:1px; align-self:stretch; background:#cfdcd8; margin:6px 0; }}
 .logo {{ margin:0; line-height:0; }} .logo img {{ height:70px; width:auto; display:block; }}
 .sys {{ font-family:var(--mono); font-size:13px; letter-spacing:.22em; color:#0d2147; line-height:1.5; display:flex; align-items:center; gap:10px; white-space:nowrap; }}
+.sys .gp {{ font-weight:800; letter-spacing:.08em; color:#0d2147; }}
 .online {{ font-family:var(--mono); font-size:14px; font-weight:800; letter-spacing:.12em; color:#0d1f3c; display:flex; align-items:center; gap:7px; margin-left:auto; white-space:nowrap; }}
 .online .sq {{ width:11px; height:11px; background:var(--mint); animation:blink 1.6s infinite; }}
 .online small {{ font-family:inherit; font-size:11px; color:var(--sub); letter-spacing:.04em; font-weight:700; }}
@@ -371,7 +372,7 @@ footer p {{ margin:4px 0; }}
   <div class="brand">
     <h1 class="logo"><img src="{LOGO_URI}" alt="{SITE_NAME}"></h1>
     <span class="vsep hide-sm"></span>
-    <div class="sys hide-md"><div><span class="anti">ANTI TENBUYER</span><br>DISTRIBUTION SYSTEM</div>
+    <div class="sys hide-md"><div><span class="anti">ANTI TENBUYER</span><br><b class="gp">GUM-PLA</b> DISTRIBUTION SYSTEM</div>
       <svg width="64" height="40" viewBox="0 0 64 40" aria-hidden="true"><rect x="2" y="16" width="8" height="8" fill="#10a37a"/>
       <path d="M10 20 H22 M22 20 L34 8 H46 M22 20 H46 M22 20 L34 32 H46" stroke="#0d2147" stroke-width="1.6" fill="none"/>
       <rect x="46" y="4" width="8" height="8" fill="#fff" stroke="#0d2147" stroke-width="1.6"/><rect x="46" y="16" width="8" height="8" fill="#fff" stroke="#0d2147" stroke-width="1.6"/>
