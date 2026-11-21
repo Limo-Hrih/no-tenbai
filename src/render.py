@@ -202,87 +202,111 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{SITE_NAME}｜転売価格なしで買えるガンプラ</title>
 <meta name="description" content="{SITE_TAGLINE}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {{
-  --ink:#1b2230; --sub:#5d6778; --line:#e3e7ee; --bg:#f6f7fa; --card:#fff;
-  --blue:#1f4fa3; --red:#d6372b; --yellow:#f3b61f; --green:#13866f;
+  --bg:#0a1417; --panel:#10202500; --panel:#0f1f24; --panel2:#142a30; --line:rgba(110,240,190,.18); --line2:rgba(110,240,190,.38);
+  --ink:#e4f3ee; --sub:#8db0a6; --mint:#5ef0b0; --mint-soft:#a8f6d6; --amber:#ffb84d; --alert:#ff6f61; --sky:#62c9ff;
+  --mono:"Share Tech Mono","Rajdhani",ui-monospace,monospace;
 }}
 * {{ box-sizing:border-box; }}
-body {{ margin:0; font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;
-  color:var(--ink); background:var(--bg); line-height:1.6; }}
+body {{ margin:0; font-family:"M PLUS Rounded 1c","Hiragino Sans","Noto Sans JP",sans-serif; color:var(--ink); line-height:1.6;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(94,240,176,.10), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(98,201,255,.08), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(110,240,190,.035) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(90deg, rgba(110,240,190,.035) 0 1px, transparent 1px 28px),
+    var(--bg); }}
 a {{ color:inherit; }}
-.pr {{ background:#fff; border-bottom:1px solid var(--line); font-size:12px; color:var(--sub);
-  text-align:center; padding:4px 8px; }}
-header {{ background:var(--ink); color:#fff; padding:16px 20px 0; }}
-.hwrap, main, footer .fwrap {{ max-width:1120px; margin:0 auto; }}
-.logo {{ font-size:22px; font-weight:800; letter-spacing:.04em; margin:0; }}
-.logo span {{ display:inline-block; width:10px; height:24px; margin-right:4px; vertical-align:-3px; }}
-.logo .b {{ background:var(--blue); }} .logo .r {{ background:var(--red); }} .logo .y {{ background:var(--yellow); margin-right:12px; }}
-.tag {{ margin:2px 0 0; color:#c9d1e0; font-size:13px; }}
-.tabs {{ display:flex; gap:4px; margin-top:12px; }}
-.tab {{ border:0; background:transparent; color:#c9d1e0; font:inherit; font-weight:700; font-size:15px;
+.pr {{ background:#071013; border-bottom:1px solid var(--line); font-size:11px; color:var(--sub); text-align:center; padding:3px 8px; }}
+header {{ background:linear-gradient(180deg,#0d1c21,#0a1619); border-bottom:1px solid var(--line2); padding:16px 20px 0;
+  box-shadow:0 1px 0 rgba(94,240,176,.15), 0 8px 30px rgba(0,0,0,.35); }}
+.hwrap, main, footer .fwrap {{ max-width:1180px; margin:0 auto; }}
+.logo {{ font-size:24px; font-weight:800; letter-spacing:.04em; margin:0; display:flex; align-items:center; gap:10px; }}
+.logo .mark {{ width:30px; height:30px; border:2px solid var(--mint); border-radius:8px; position:relative; box-shadow:0 0 12px rgba(94,240,176,.45) inset, 0 0 10px rgba(94,240,176,.35); }}
+.logo .mark::after {{ content:""; position:absolute; inset:7px; border-radius:3px; background:var(--mint); opacity:.85; }}
+.logo .no {{ color:var(--alert); text-shadow:0 0 10px rgba(255,111,97,.5); }}
+.live {{ font-family:var(--mono); font-size:11px; color:var(--mint); border:1px solid var(--line2); border-radius:999px; padding:1px 8px; margin-left:4px; letter-spacing:.08em; }}
+.live::before {{ content:"●"; margin-right:5px; animation:blink 1.6s infinite; }}
+@keyframes blink {{ 50% {{ opacity:.25; }} }}
+.tag {{ margin:4px 0 0; color:var(--sub); font-size:13px; }}
+.tabs {{ display:flex; gap:6px; margin-top:12px; }}
+.tab {{ border:1px solid transparent; border-bottom:none; background:transparent; color:var(--sub); font:inherit; font-weight:700; font-size:14px;
   padding:8px 16px; border-radius:10px 10px 0 0; cursor:pointer; }}
-.tab[aria-selected=true] {{ background:var(--bg); color:var(--ink); }}
-.intro {{ background:#fff; border:1px solid var(--line); border-left:6px solid var(--red); border-radius:14px;
-  padding:10px 16px; margin:14px 0 4px; }}
-.intro h2 {{ font-size:16px; margin:0 0 3px; line-height:1.4; }}
-.intro p {{ margin:0; font-size:13px; line-height:1.6; }} .intro b {{ color:var(--red); }}
-.sample {{ background:#fff4d6; border:1px solid var(--yellow); color:#6b4e00; padding:6px 12px;
-  border-radius:8px; margin:8px 0 0; font-size:12px; }}
-main {{ padding:8px 20px 40px; }}
-.lead {{ margin:10px 0 6px; color:var(--sub); font-size:12px; }}
-.lead b {{ color:var(--ink); }}
-.bar {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 14px; }}
-.f, select {{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px;
-  font:inherit; font-size:13px; cursor:pointer; color:var(--ink); }}
-.fe {{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; color:var(--ink); }}
-.fe.on {{ background:var(--blue); color:#fff; border-color:var(--blue); }}
-.sep {{ width:1px; height:20px; background:var(--line); margin:0 4px; }}
-.f.on {{ background:var(--ink); color:#fff; border-color:var(--ink); }}
-select {{ margin-left:auto; }}
+.tab[aria-selected=true] {{ background:var(--bg); color:var(--mint); border-color:var(--line2); box-shadow:0 -2px 12px rgba(94,240,176,.12); }}
+main {{ padding:6px 20px 40px; }}
+.hud {{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--mint); opacity:.85; display:block; margin-bottom:2px; }}
+.intro {{ background:linear-gradient(90deg, rgba(94,240,176,.10), rgba(94,240,176,.02)); border:1px solid var(--line2); border-radius:14px;
+  padding:10px 16px; margin:14px 0 4px; position:relative; }}
+.intro h2 {{ font-size:17px; margin:0 0 3px; line-height:1.4; }}
+.intro p {{ margin:0; font-size:13px; line-height:1.7; color:#cfe6de; }} .intro b {{ color:var(--amber); }}
+.lead {{ margin:12px 0 6px; color:var(--sub); font-size:12px; }} .lead b {{ color:var(--mint-soft); }}
+.bar {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 12px; }}
+.f, .fe, select {{ border:1px solid var(--line2); background:rgba(15,31,36,.8); border-radius:999px; padding:4px 13px;
+  font:inherit; font-size:13px; cursor:pointer; color:var(--ink); transition:all .15s; }}
+.f:hover, .fe:hover {{ border-color:var(--mint); color:var(--mint); }}
+.f.on {{ background:var(--mint); color:#062018; border-color:var(--mint); font-weight:700; box-shadow:0 0 12px rgba(94,240,176,.4); }}
+.fe.on {{ background:var(--sky); color:#04202e; border-color:var(--sky); font-weight:700; box-shadow:0 0 12px rgba(98,201,255,.4); }}
+.sep {{ width:1px; height:20px; background:var(--line2); margin:0 4px; }}
+select {{ margin-left:auto; }} select option {{ background:#0f1f24; }}
+.stampline {{ font-family:var(--mono); font-size:11px; color:var(--sub); margin:0 0 10px; letter-spacing:.02em; }}
 .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:10px; }}
-.card {{ background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden;
-  display:flex; flex-direction:column; text-decoration:none; color:inherit; transition:box-shadow .15s, transform .15s; }}
-.card:hover {{ box-shadow:0 4px 14px rgba(0,0,0,.12); transform:translateY(-1px); }}
-.thumb {{ position:relative; aspect-ratio:1/1; background:#fff; }}
+.card {{ position:relative; background:linear-gradient(180deg, var(--panel2), var(--panel)); border:1px solid var(--line); border-radius:12px;
+  overflow:hidden; display:flex; flex-direction:column; text-decoration:none; color:inherit; transition:all .15s; }}
+.card::before, .card::after {{ content:""; position:absolute; width:12px; height:12px; border:2px solid var(--mint); opacity:.55; pointer-events:none; z-index:2; }}
+.card::before {{ right:5px; bottom:5px; border-left:none; border-top:none; border-radius:0 0 6px 0; }}
+.card::after {{ left:5px; bottom:5px; border-right:none; border-top:none; border-radius:0 0 0 6px; }}
+.card:hover {{ border-color:var(--mint); box-shadow:0 0 0 1px rgba(94,240,176,.35), 0 6px 22px rgba(94,240,176,.18); transform:translateY(-2px); }}
+.thumb {{ position:relative; aspect-ratio:1/1; margin:6px 6px 0; background:#f3f7f5; border-radius:9px; overflow:hidden; }}
 .thumb img {{ width:100%; height:100%; object-fit:contain; display:block; }}
-.noimg {{ display:grid; place-items:center; height:100%; color:#b8c0cc; font-size:12px; letter-spacing:.1em; }}
-.badge {{ position:absolute; left:6px; top:6px; background:var(--red); color:#fff; border-radius:8px;
-  padding:4px 7px 3px; line-height:1.05; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,.18); }}
-.badge-l {{ display:block; font-size:9px; font-weight:700; opacity:.92; }}
-.badge-n {{ display:block; font-size:19px; font-weight:800; }}
-.badge-even {{ background:var(--blue); }} .badge-even .badge-n {{ font-size:14px; padding:2px 1px; }}
-.tags {{ position:absolute; right:6px; top:6px; display:flex; gap:3px; }}
-.tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; color:#fff; }}
-.tg-new {{ background:var(--red); }} .tg-re {{ background:var(--blue); }}
-.body {{ padding:7px 9px 9px; display:flex; flex-direction:column; gap:2px; flex:1; }}
-.body h3 {{ font-size:12px; line-height:1.35; margin:0; font-weight:600; display:-webkit-box;
-  -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.7em; }}
-.price {{ font-size:18px; font-weight:800; margin-top:auto; }}
+.noimg {{ display:grid; place-items:center; height:100%; color:#9aa; font-size:12px; letter-spacing:.1em; }}
+.badge {{ position:absolute; left:5px; top:5px; background:var(--amber); color:#2a1700; border-radius:8px; padding:3px 7px 2px;
+  line-height:1.05; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.25); }}
+.badge-l {{ display:block; font-size:9px; font-weight:800; }}
+.badge-n {{ display:block; font-family:var(--mono); font-size:21px; font-weight:700; letter-spacing:-.01em; }}
+.badge-even {{ background:var(--mint); color:#062018; }} .badge-even .badge-n {{ font-family:inherit; font-size:13px; font-weight:800; padding:2px 1px; }}
+.tags {{ position:absolute; right:5px; top:5px; display:flex; gap:3px; }}
+.tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; }}
+.tg-new {{ background:var(--alert); color:#fff; }} .tg-re {{ background:var(--sky); color:#04202e; }}
+.body {{ padding:7px 10px 12px; display:flex; flex-direction:column; gap:1px; flex:1; }}
+.body h3 {{ font-size:12px; line-height:1.4; margin:0; font-weight:700; display:-webkit-box; -webkit-line-clamp:2;
+  -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em; color:#dcefe8; }}
+.price {{ font-family:var(--mono); font-size:22px; color:var(--mint-soft); margin-top:auto; text-shadow:0 0 10px rgba(94,240,176,.35); }}
 .meta {{ font-size:11px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }}
-.stampline {{ font-size:12px; color:var(--sub); margin:-8px 0 10px; }}
 .empty {{ color:var(--sub); }}
-.rq {{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 18px 8px; margin:18px 0; }}
-.rq h3 {{ margin:0 0 4px; font-size:18px; }} .rq h3 small {{ color:var(--sub); font-weight:400; font-size:13px; }}
-.src {{ font-size:12px; color:var(--sub); margin:0 0 10px; }}
-.rt {{ width:100%; border-collapse:collapse; font-size:14px; }}
-.rt th {{ text-align:left; font-size:12px; color:var(--sub); border-bottom:2px solid var(--line); padding:6px 8px; }}
-.rt td {{ border-bottom:1px solid var(--line); padding:9px 8px; vertical-align:middle; }}
-.rp {{ white-space:nowrap; font-weight:700; }} .rp small {{ display:block; font-weight:400; color:#8b94a3; font-size:11px; }}
-.status {{ display:inline-block; font-size:13px; border-radius:8px; padding:4px 10px; text-decoration:none; }}
+.newbox {{ background:rgba(255,111,97,.06); border:1px solid rgba(255,111,97,.5); border-radius:14px; padding:14px; margin:14px 0 6px; }}
+.newbox h2 {{ margin:0 0 10px; font-size:16px; color:var(--alert); }} .newbox h2 small {{ color:var(--sub); font-weight:400; font-size:12px; }}
+.rq {{ background:linear-gradient(180deg, var(--panel2), var(--panel)); border:1px solid var(--line); border-radius:14px; padding:16px 18px 8px; margin:16px 0; }}
+.rq h3 {{ margin:0 0 4px; font-size:17px; }} .rq h3 small {{ color:var(--sub); font-weight:400; font-size:12px; }}
+.src {{ font-size:11px; color:var(--sub); margin:0 0 10px; }} .src a {{ color:var(--sky); }}
+.rt {{ width:100%; border-collapse:collapse; font-size:13px; }}
+.rt th {{ text-align:left; font-size:11px; color:var(--mint); border-bottom:1px solid var(--line2); padding:6px 8px; font-family:var(--mono); letter-spacing:.06em; }}
+.rt td {{ border-bottom:1px solid var(--line); padding:8px; vertical-align:middle; }}
+.rp {{ white-space:nowrap; font-family:var(--mono); font-size:15px; color:var(--mint-soft); }} .rp small {{ display:block; color:var(--sub); font-size:11px; }}
+.status {{ display:inline-block; font-size:12px; border-radius:8px; padding:3px 10px; text-decoration:none; }}
 .status small {{ font-size:10px; margin-left:4px; opacity:.8; }}
-.ok {{ background:#e3f4ef; color:var(--green); font-weight:700; }}
-.wait {{ background:#f0f2f5; color:var(--sub); }}
-.about {{ background:#fff; border:1px solid var(--line); border-left:6px solid var(--blue); border-radius:14px; padding:20px 24px; margin-top:28px; font-size:14px; }}
-.about h2 {{ font-size:13px; margin:0 0 6px; color:var(--sub); font-weight:700; letter-spacing:.05em; }}
-.about-lead {{ font-size:20px; font-weight:800; margin:0 0 8px; color:var(--ink); }}
-.about p {{ margin:6px 0; line-height:1.8; }}
-footer {{ border-top:1px solid var(--line); background:#fff; padding:20px; font-size:12px; color:var(--sub); }}
+.ok {{ background:rgba(94,240,176,.15); color:var(--mint); border:1px solid var(--line2); font-weight:700; }}
+.wait {{ background:rgba(255,255,255,.04); color:var(--sub); }}
+.pred {{ border-color:rgba(98,201,255,.45); }}
+.pgrid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; margin-bottom:10px; }}
+.pday {{ background:rgba(0,0,0,.2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }}
+.pdate {{ font-weight:800; margin-bottom:4px; }} .pday ul {{ margin:0; padding-left:18px; font-size:13px; }} .pday li {{ margin:3px 0; }}
+.pk {{ font-size:10px; border-radius:999px; padding:1px 8px; margin-left:6px; font-weight:700; vertical-align:2px; }}
+.pk-pred {{ background:rgba(98,201,255,.18); color:var(--sky); }} .pk-real {{ background:rgba(94,240,176,.18); color:var(--mint); }}
+.about {{ background:linear-gradient(135deg, rgba(94,240,176,.10), rgba(98,201,255,.06)); border:1px solid var(--line2); border-radius:16px;
+  padding:22px 26px; margin-top:28px; font-size:14px; position:relative; overflow:hidden; }}
+.about h2 {{ font-family:var(--mono); font-size:12px; margin:0 0 6px; color:var(--mint); font-weight:400; letter-spacing:.14em; }}
+.about-lead {{ font-size:22px; font-weight:800; margin:0 0 8px; color:#fff; text-shadow:0 0 18px rgba(94,240,176,.35); }}
+.about p {{ margin:6px 0; line-height:1.85; color:#d3e8e1; }}
+.sample {{ background:rgba(255,184,77,.08); border:1px solid rgba(255,184,77,.4); color:#f5d8a6; padding:6px 12px; border-radius:8px; margin:10px 0 0; font-size:11px; }}
+footer {{ border-top:1px solid var(--line); background:#071013; padding:18px 20px; font-size:11px; color:var(--sub); }}
 footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
 @media (max-width:560px) {{
-  .logo {{ font-size:22px; }} .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
-  .badge-n {{ font-size:15px; }} .price {{ font-size:15px; }} .meta {{ font-size:10px; white-space:normal; }} select {{ margin-left:0; }}
+  .logo {{ font-size:19px; }} .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
+  .badge-n {{ font-size:15px; }} .price {{ font-size:16px; }} .meta {{ font-size:10px; white-space:normal; }}
+  select {{ margin-left:0; }} .about-lead {{ font-size:18px; }} .card::before, .card::after {{ width:8px; height:8px; }}
   .rt th:nth-child(2), .rt td.rp {{ white-space:normal; }}
 }}
 </style>
@@ -290,7 +314,7 @@ footer p {{ margin:4px 0; }}
 <body>
 <div class="pr">本ページはプロモーション（Amazonアソシエイト）を含みます</div>
 <header><div class="hwrap">
-  <h1 class="logo"><span class="b"></span><span class="r"></span><span class="y"></span>{SITE_NAME}</h1>
+  <h1 class="logo"><span class="mark"></span><span><span class="no">NO</span>転売ガンプラ市場</span><span class="live">毎日更新</span></h1>
   <p class="tag">{SITE_TAGLINE_HTML}</p>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" aria-selected="true" data-t="fair">いま定価で買える</button>
@@ -299,6 +323,7 @@ footer p {{ margin:4px 0; }}
 </div></header>
 <main>
 <section class="intro">
+  <span class="hud">MESSAGE</span>
   <h2>今でも、ガンプラは安く買えます。――ほら！</h2>
   <p>「転売ヤーのせいで高い」と思われがちですが、<b>転売相場の半額以下</b>や<b>定価より安い</b>ガンプラは、まだまだあります。転売ヤーが一番困るのは、みんなが高い転売品に手を出さず、定価や安い値段のガンプラをどんどん買うこと。転売ヤーの言い値で買わずに済むガンプラだけを、毎日まとめています。</p>
 </section>
@@ -323,7 +348,7 @@ footer p {{ margin:4px 0; }}
   {"".join(resale_html)}
 </section>
 <section class="about">
-  <h2>このサイトを作った理由</h2>
+  <h2>WHY WE MADE THIS ／ このサイトを作った理由</h2>
   <p class="about-lead">転売ヤーを、ガンプラの世界からなくしたい。</p>
   <p>でも、転売ヤーを責めたり攻撃したりしても、きっと何も変わりません。だったら、正規の値段で、できればもっと安く買える場所を、誰にでもわかるように示せばいい。みんなが安く買えば買うほど、高値で売りつけようとする転売ヤーは困ります。</p>
   <p>NO転売ガンプラ市場は、そのためのお得なガンプラ情報を、ファンみんなで共有するために作りました。欲しかったあのキット、定価で手に入るかもしれません。</p>
