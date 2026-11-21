@@ -7,7 +7,7 @@ from datetime import datetime
 
 from select_items import Product
 
-SITE_NAME = "定価でガンプラ"
+SITE_NAME = "NO転売ガンプラ市場"
 SITE_TAGLINE = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 SITE_TAGLINE_HTML = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 
