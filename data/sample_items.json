@@ -1,0 +1,536 @@
+[
+ {
+  "asin": "SAMPLE0001",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HG 1/144 ガンダムアストレイ レッドフレーム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 1350,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 14
+     }
+    },
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "ホビー転売堂"
+     },
+     "price": {
+      "money": {
+       "amount": 2980,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0002",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HG 1/144 R03 バスターガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 1200,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 12
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0003",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HG 1/144 ガンダムアストレイ ブルーフレーム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "ホビー転売堂"
+     },
+     "price": {
+      "money": {
+       "amount": 3800,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0004",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "RG 1/144 RX-78-2 ガンダム Ver.2.0"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjZDYzNzJiIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Ukc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 2640,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 26
+     }
+    },
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "○○ストア"
+     },
+     "price": {
+      "money": {
+       "amount": 4500,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0005",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "MG 1/100 ガンダムF91 Ver.2.0"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMTM4NjZmIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TUc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "模型のまち（正規取扱店）"
+     },
+     "price": {
+      "money": {
+       "amount": 5390,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0006",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HG 1/144 ガンダムエアリアル"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 1584,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 16
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0007",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "PG UNLEASHED 1/60 RX-78-2 ガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjNmEzZmI1IiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 24750,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 248
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0008",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "ENTRY GRADE 1/144 RX-78-2 ガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjZjNiNjFmIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RUc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 990,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 10
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0009",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "MG 1/100 ガンダムバルバトス"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMTM4NjZmIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TUc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "ホビー転売堂"
+     },
+     "price": {
+      "money": {
+       "amount": 9800,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0010",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HGUC 1/144 ゼータガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEdVQzwvdGV4dD4KPHRleHQgeD0iMTUwIiB5PSIyNjIiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOGI5NGEzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7opovmnKznlLvlg488L3RleHQ+PC9zdmc+"
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 1871,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 19
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0011",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "SDガンダム クロスシルエット フリーダムガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjZTA2YjJmIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U0Q8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "AN1VRQENFRJN5",
+      "name": "Amazon.co.jp"
+     },
+     "price": {
+      "money": {
+       "amount": 1100,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 11
+     }
+    }
+   ]
+  }
+ },
+ {
+  "asin": "SAMPLE0012",
+  "detailPageURL": "#",
+  "itemInfo": {
+   "title": {
+    "displayValue": "HG 1/144 R05 イージスガンダム"
+   }
+  },
+  "images": {
+   "primary": {
+    "medium": {
+     "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj4KPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmM2Y1ZjkiLz4KPHJlY3QgeD0iNjAiIHk9IjcwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgcng9IjE0IiBmaWxsPSIjMWY0ZmEzIiBvcGFjaXR5PSIuOSIvPgo8cmVjdCB4PSI2MCIgeT0iNzAiIHdpZHRoPSIxODAiIGhlaWdodD0iNDAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjE4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTcwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SEc8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMjYyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhiOTRhMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6KaL5pys55S75YOPPC90ZXh0Pjwvc3ZnPg=="
+    }
+   }
+  },
+  "offersV2": {
+   "listings": [
+    {
+     "condition": {
+      "value": "New"
+     },
+     "availability": {
+      "type": "IN_STOCK"
+     },
+     "merchantInfo": {
+      "id": "SELLER",
+      "name": "模型のまち（正規取扱店）"
+     },
+     "price": {
+      "money": {
+       "amount": 1720,
+       "currency": "JPY"
+      }
+     },
+     "loyaltyPoints": {
+      "points": 0
+     }
+    }
+   ]
+  }
+ }
+]
