@@ -6,8 +6,12 @@ import re
 from datetime import datetime
 
 from select_items import Product
+import base64 as _b64
+from pathlib import Path as _Path
+_LOGO = _Path(__file__).resolve().parent.parent / "assets" / "logo.png"
+LOGO_URI = ("data:image/png;base64," + _b64.b64encode(_LOGO.read_bytes()).decode()) if _LOGO.exists() else ""
 
-SITE_NAME = "NO転売ガンプラ市場"
+SITE_NAME = "NO転売！ガンプラカタログ"
 SITE_TAGLINE = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 SITE_TAGLINE_HTML = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 
@@ -87,14 +91,17 @@ def card(p: Product, stamp: str) -> str:
         badge = '<div class="badge badge-even"><span class="badge-n">正規販売</span></div>'
     img = f'<img src="{e(p.image)}" alt="" loading="lazy">' if p.image else '<div class="noimg">NO IMAGE</div>'
     tags = ""
-    if max(off or 0, moff or 0) >= 50:
+    best_off = max(off or 0, moff or 0)
+    if best_off >= 50:
         tags += '<span class="tg tg-half">半額以下！</span>'
+    elif best_off >= 30:
+        tags += '<span class="tg tg-big">大幅値下げ中</span>'
     if p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
         tags += '<span class="tg tg-re">再販</span>'
     meta = []
-    if p.list_price:
+    if p.list_price and p.list_price > b.price:
         meta.append(f"希望価格 <s>{yen(p.list_price)}</s>")
     if moff is not None and moff >= 10:
         meta.append(f"転売相場 <s>{yen(p.market_low)}</s>")
@@ -170,7 +177,19 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
            sample: bool = False, pred: dict | None = None, snapshot: bool = False) -> str:
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
-    cards = "\n".join(card(p, stamp) for p in fair) or '<p class="empty">いま該当する商品はありません。</p>'
+    pred_keys = [_norm(n.split("（")[0]) for d in (pred or {}).get("days", []) for n in d["items"]]
+    def in_pred(p):
+        t = _norm(p.title)
+        return any(k and k in t for k in pred_keys)
+    featured = [p for p in fair if p.is_new or p.resale_quarter or in_pred(p)]
+    featured.sort(key=lambda p: (not p.is_new, -max(p.off_pct or 0, p.market_off_pct or 0)))
+    for p in featured:
+        if in_pred(p) and not p.resale_quarter:
+            p.resale_quarter = "再販"
+    fset = {p.asin for p in featured}
+    rest = [p for p in fair if p.asin not in fset]
+    featured_html = "\n".join(card(p, stamp) for p in featured) or '<p class="empty">いまAmazonで定価以下になっている再販品はありません。</p>'
+    cards = "\n".join(card(p, stamp) for p in rest) or '<p class="empty">いま該当する商品はありません。</p>'
     new_items = [p for p in fair if p.is_new]
     new_html = (f'''
 <section class="newbox">
@@ -222,16 +241,32 @@ body {{ margin:0; font-family:"M PLUS Rounded 1c","Hiragino Sans","Noto Sans JP"
     var(--bg); }}
 a {{ color:inherit; }}
 .pr {{ background:#fff; border-bottom:1px solid var(--line); font-size:11px; color:var(--sub); text-align:center; padding:3px 8px; }}
-header {{ background:#fff; border-bottom:2px solid var(--mint); padding:16px 20px 0;
+header {{ background:#fff; border-bottom:2px solid var(--mint); padding:10px 20px 8px;
   box-shadow:0 6px 20px rgba(16,163,122,.10); }}
 .hwrap, main, footer .fwrap {{ max-width:1180px; margin:0 auto; }}
-.logo {{ font-size:24px; font-weight:800; letter-spacing:.04em; margin:0; display:flex; align-items:center; gap:10px; }}
+
 .logo .mark {{ width:30px; height:30px; border:2px solid var(--mint); border-radius:8px; position:relative; box-shadow:0 0 10px rgba(16,163,122,.35); }}
 .logo .mark::after {{ content:""; position:absolute; inset:7px; border-radius:3px; background:var(--mint); opacity:.85; }}
 .logo .no {{ color:var(--alert); }}
 .live {{ font-family:var(--mono); font-size:11px; color:var(--mint); border:1px solid var(--line2); border-radius:999px; padding:1px 8px; margin-left:4px; letter-spacing:.08em; }}
 .live::before {{ content:"●"; margin-right:5px; animation:blink 1.6s infinite; }}
 @keyframes blink {{ 50% {{ opacity:.25; }} }}
+
+.brand {{ display:flex; align-items:center; gap:16px; min-height:64px; }}
+.stripes {{ display:flex; gap:4px; }} .stripes i {{ width:11px; height:20px; background:var(--mint); transform:skewX(-28deg); display:block; }}
+.stripes i:nth-child(2) {{ opacity:.8; }} .stripes i:nth-child(3) {{ opacity:.6; }}
+.anti {{ font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.06em; color:#0d2147; }}
+.anti .u {{ display:block; height:2px; margin-top:7px; background:#c9d6d2; width:150px; position:relative; }}
+.anti .u b {{ position:absolute; left:0; top:0; height:2px; width:40px; background:var(--mint); }}
+.vsep {{ width:1px; align-self:stretch; background:#cfdcd8; margin:6px 0; }}
+.logo {{ margin:0; line-height:0; }} .logo img {{ height:70px; width:auto; display:block; }}
+.sys {{ font-family:var(--mono); font-size:13px; letter-spacing:.22em; color:#0d2147; line-height:1.5; display:flex; align-items:center; gap:10px; white-space:nowrap; }}
+.online {{ font-family:var(--mono); font-size:14px; font-weight:800; letter-spacing:.12em; color:#0d1f3c; display:flex; align-items:center; gap:7px; margin-left:auto; white-space:nowrap; }}
+.online .sq {{ width:11px; height:11px; background:var(--mint); animation:blink 1.6s infinite; }}
+.online small {{ font-family:inherit; font-size:11px; color:var(--sub); letter-spacing:.04em; font-weight:700; }}
+@media (max-width:1000px) {{ .hide-md {{ display:none !important; }} }}
+@media (max-width:640px) {{ .hide-sm {{ display:none !important; }} .logo img {{ height:44px; }} .brand {{ gap:10px; min-height:48px; }}
+  .online small {{ display:none; }} .online {{ font-size:11px; }} .stripes i {{ width:8px; height:15px; }} }}
 .tag {{ margin:4px 0 0; color:var(--sub); font-size:13px; }}
 .tabs {{ display:flex; gap:6px; margin-top:12px; }}
 .tab {{ border:1px solid transparent; border-bottom:none; background:transparent; color:var(--sub); font:inherit; font-weight:700; font-size:14px;
@@ -255,11 +290,14 @@ select {{ margin-left:auto; }}
 .stampline {{ font-family:var(--mono); font-size:11px; color:var(--sub); margin:0 0 10px; letter-spacing:.02em; }}
 .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:10px; }}
 .card {{ position:relative; background:#fff; border:1px solid var(--line); box-shadow:0 1px 3px rgba(20,60,50,.06); border-radius:12px;
-  overflow:hidden; display:flex; flex-direction:column; text-decoration:none; color:inherit; transition:all .15s; }}
+  overflow:hidden; display:flex; flex-direction:column; text-decoration:none; color:inherit; }}
 .card::before, .card::after {{ content:""; position:absolute; width:12px; height:12px; border:2px solid var(--mint); opacity:.55; pointer-events:none; z-index:2; }}
 .card::before {{ right:5px; bottom:5px; border-left:none; border-top:none; border-radius:0 0 6px 0; }}
 .card::after {{ left:5px; bottom:5px; border-right:none; border-top:none; border-radius:0 0 0 6px; }}
-.card:hover {{ border-color:var(--mint); box-shadow:0 0 0 1px rgba(16,163,122,.3), 0 8px 22px rgba(16,163,122,.15); transform:translateY(-2px); }}
+.card {{ transition:transform .18s cubic-bezier(.2,.8,.3,1.2), box-shadow .18s, border-color .18s; transform-origin:center bottom; }}
+.card:hover {{ border-color:var(--mint); box-shadow:0 0 0 1px rgba(16,163,122,.3), 0 14px 30px rgba(16,163,122,.22); transform:scale(1.12); z-index:5; }}
+.card:hover + .card, .card:has(+ .card:hover) {{ transform:scale(1.04); z-index:4; }}
+@media (hover:none) {{ .card:hover, .card:hover + .card, .card:has(+ .card:hover) {{ transform:none; }} }}
 .thumb {{ position:relative; aspect-ratio:1/1; margin:0; background:#fff; overflow:hidden; border-bottom:1px solid #eef3f1; }}
 .thumb img {{ width:100%; height:100%; object-fit:contain; display:block; }}
 .noimg {{ display:grid; place-items:center; height:100%; color:#9aa; font-size:12px; letter-spacing:.1em; }}
@@ -280,6 +318,17 @@ select {{ margin-left:auto; }}
 .price .yen {{ font-size:.6em; margin-right:1px; }}
 .meta {{ font-size:11px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }}
 .empty {{ color:var(--sub); }}
+
+.corner {{ margin:22px 0 0; }}
+.chead {{ margin:0 0 10px; }}
+.chead .hud {{ font-size:11px; }}
+.chead h2 {{ font-size:22px; margin:0; line-height:1.35; color:#0d2147; }}
+.clead {{ margin:2px 0 0; font-size:12px; color:var(--sub); }} .clead b {{ color:var(--mint-soft); }}
+.corner-resale {{ background:linear-gradient(135deg,#fff7f0,#fff); border:2px solid #ffc9a8; border-radius:16px; padding:14px 16px 10px; }}
+.corner-resale .chead h2 {{ color:#c4210f; }}
+.more {{ margin:12px 0 2px; }}
+.more summary {{ cursor:pointer; font-size:13px; font-weight:700; color:#0d2147; padding:6px 0; }}
+.tg-big {{ background:#fff; color:var(--sale); border:1px solid var(--sale); font-size:10px; }}
 .newbox {{ background:#fff5f4; border:1px solid rgba(255,111,97,.5); border-radius:14px; padding:14px; margin:14px 0 6px; }}
 .newbox h2 {{ margin:0 0 10px; font-size:16px; color:var(--alert); }} .newbox h2 small {{ color:var(--sub); font-weight:400; font-size:12px; }}
 .rq {{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px 8px; margin:16px 0; }}
@@ -309,7 +358,7 @@ footer {{ border-top:1px solid var(--line); background:#fff; padding:18px 20px; 
 footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
 @media (max-width:560px) {{
-  .logo {{ font-size:19px; }} .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
+ .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
   .badge-n {{ font-size:13px; }} .badge-l {{ font-size:7px; }} .price {{ font-size:18px; }} .meta {{ font-size:10px; white-space:normal; }}
   select {{ margin-left:0; }} .about-lead {{ font-size:18px; }} .card::before, .card::after {{ width:8px; height:8px; }}
   .rt th:nth-child(2), .rt td.rp {{ white-space:normal; }}
@@ -319,12 +368,18 @@ footer p {{ margin:4px 0; }}
 <body>
 <div class="pr">本ページはプロモーション（Amazonアソシエイト）を含みます</div>
 <header><div class="hwrap">
-  <h1 class="logo"><span class="mark"></span><span><span class="no">NO</span>転売ガンプラ市場</span><span class="live">毎日更新</span></h1>
-  <p class="tag">{SITE_TAGLINE_HTML}</p>
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" aria-selected="true" data-t="fair">いま定価で買える</button>
-    <button class="tab" role="tab" aria-selected="false" data-t="resale">再販情報</button>
+  <div class="brand">
+    <h1 class="logo"><img src="{LOGO_URI}" alt="{SITE_NAME}"></h1>
+    <span class="vsep hide-sm"></span>
+    <div class="sys hide-md"><div><span class="anti">ANTI TENBUYER</span><br>DISTRIBUTION SYSTEM</div>
+      <svg width="64" height="40" viewBox="0 0 64 40" aria-hidden="true"><rect x="2" y="16" width="8" height="8" fill="#10a37a"/>
+      <path d="M10 20 H22 M22 20 L34 8 H46 M22 20 H46 M22 20 L34 32 H46" stroke="#0d2147" stroke-width="1.6" fill="none"/>
+      <rect x="46" y="4" width="8" height="8" fill="#fff" stroke="#0d2147" stroke-width="1.6"/><rect x="46" y="16" width="8" height="8" fill="#fff" stroke="#0d2147" stroke-width="1.6"/>
+      <rect x="46" y="28" width="8" height="8" fill="#fff" stroke="#0d2147" stroke-width="1.6"/></svg></div>
+    <span class="vsep hide-md"></span>
+    <div class="online"><span class="sq"></span>ONLINE<small>毎日更新</small></div>
   </div>
+  <p class="tag">{SITE_TAGLINE_HTML}</p>
 </div></header>
 <main>
 <section class="intro">
@@ -332,9 +387,21 @@ footer p {{ margin:4px 0; }}
   <h2>今でも、ガンプラは安く買えます。――ほら！</h2>
   <p>「転売ヤーのせいで高い」と思われがちですが、<b>転売相場の半額以下</b>や<b>定価より安い</b>ガンプラは、まだまだあります。転売ヤーが一番困るのは、みんなが高い転売品に手を出さず、定価や安い値段のガンプラをどんどん買うこと。転売ヤーの言い値で買わずに済むガンプラだけを、毎日まとめています。</p>
 </section>
-<section id="fair">
-  {new_html}
-  <p class="lead"><b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけを載せています。毎日更新。</p>
+<section class="corner corner-resale">
+  <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
+    <h2>再販がかかった！ いま定価以下で買えるガンプラ</h2>
+    <p class="clead">公式の再販リストやファンサイトの再販報告に載っていて、<b>いまAmazonで定価以下・定価並みで買える</b>ものです。{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
+  <div class="grid grid-feat">{featured_html}</div>
+  <details class="more">
+    <summary>今週の再販予想・入荷報告／今期の公式再販リストを見る</summary>
+    {predictions_html(pred, fair)}
+    {"".join(resale_html)}
+  </details>
+</section>
+<section class="corner" id="fair">
+  <div class="chead"><span class="hud">SALE ／ 値下げ中</span>
+    <h2>今が買い時！ 値下げ中のガンプラ</h2>
+    <p class="clead"><b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけ。転売相場の半額以下や、定価から大幅値下げ中のものも。毎日更新。</p></div>
   <div class="bar">
     <button class="f on" data-g="ALL">すべて</button>{grade_btns}
     <span class="sep"></span>
@@ -347,16 +414,11 @@ footer p {{ margin:4px 0; }}
   <div class="stampline">価格・在庫は {e(stamp)} 時点のものです。購入時はAmazon.co.jpに表示される価格が適用されます。</div>
   <div class="grid" id="grid">{cards}</div>
 </section>
-<section id="resale" hidden>
-  <p class="lead">今週の再販予想と、バンダイ公式が発表している今期の再販商品です。<b>Amazonで定価以下・定価に近い値段で買えるもの</b>にだけリンクを付けています。</p>
-  {predictions_html(pred, fair)}
-  {"".join(resale_html)}
-</section>
 <section class="about">
   <h2>WHY WE MADE THIS ／ このサイトを作った理由</h2>
   <p class="about-lead">転売ヤーを、ガンプラの世界からなくしたい。</p>
   <p>でも、転売ヤーを責めたり攻撃したりしても、きっと何も変わりません。だったら、正規の値段で、できればもっと安く買える場所を、誰にでもわかるように示せばいい。みんなが安く買えば買うほど、高値で売りつけようとする転売ヤーは困ります。</p>
-  <p>NO転売ガンプラ市場は、そのためのお得なガンプラ情報を、ファンみんなで共有するために作りました。欲しかったあのキット、定価で手に入るかもしれません。</p>
+  <p>{SITE_NAME}は、そのためのお得なガンプラ情報を、ファンみんなで共有するために作りました。欲しかったあのキット、定価で手に入るかもしれません。</p>
 </section>
 {sample_banner}
 </main>
@@ -369,12 +431,6 @@ footer p {{ margin:4px 0; }}
 </div></footer>
 <script>
 (() => {{
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(t => t.addEventListener('click', () => {{
-    tabs.forEach(x => x.setAttribute('aria-selected', x === t));
-    document.getElementById('fair').hidden = t.dataset.t !== 'fair';
-    document.getElementById('resale').hidden = t.dataset.t !== 'resale';
-  }}));
   const grid = document.getElementById('grid');
   let g = 'ALL', era = 'ALL';
   const apply = () => grid.querySelectorAll('.card').forEach(c => {{
