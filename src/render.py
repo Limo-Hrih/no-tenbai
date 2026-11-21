@@ -184,6 +184,10 @@ header {{ background:var(--ink); color:#fff; padding:28px 20px 0; }}
 .tab {{ border:0; background:transparent; color:#c9d1e0; font:inherit; font-weight:700; font-size:15px;
   padding:12px 18px; border-radius:10px 10px 0 0; cursor:pointer; }}
 .tab[aria-selected=true] {{ background:var(--bg); color:var(--ink); }}
+.intro {{ background:#fff; border:1px solid var(--line); border-left:6px solid var(--red); border-radius:14px;
+  padding:18px 22px; margin:20px 0 4px; }}
+.intro h2 {{ font-size:20px; margin:0 0 8px; line-height:1.4; }}
+.intro p {{ margin:6px 0; font-size:15px; }} .intro b {{ color:var(--red); }}
 .sample {{ background:#fff4d6; border:1px solid var(--yellow); color:#6b4e00; padding:10px 14px;
   border-radius:8px; margin:16px 0 0; font-size:14px; }}
 main {{ padding:8px 20px 40px; }}
@@ -268,6 +272,11 @@ footer p {{ margin:4px 0; }}
   </div>
 </div></header>
 <main>
+<section class="intro">
+  <h2>「ガンプラは転売ヤーのせいで高い」と思っていませんか？</h2>
+  <p>実は、よく探せば<b>転売価格より安いもの</b>、<b>転売価格の半額以下のもの</b>、さらには<b>定価より安いもの</b>まで見つかります。しかも、どれも転売ヤーを通さない正規ルートの商品です。</p>
+  <p>このサイトでは、転売ヤーを通さず、しかも安く買えるガンプラだけを毎日まとめています。</p>
+</section>
 {sample_banner}
 <section id="fair">
   {new_html}
