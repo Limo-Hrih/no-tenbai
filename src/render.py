@@ -56,13 +56,13 @@ ANOTHER_KEYS = ["SEED", "ストライク", "フリーダム", "ジャスティ�
 
 def era_of(title: str) -> str:
     t = title
-    if any(k in t for k in ("三国創傑伝", "SDW HEROES", "ガンプラくん")):
-        return "その他"
+    if grade_of(t) == "SD" or any(k in t for k in ("三国創傑伝", "SDW HEROES", "ガンプラくん", "EXスタンダード", "BB戦士")):
+        return "SD・その他"
     if any(k in t for k in ANOTHER_KEYS):
         return "アナザー"
     if any(k in t for k in UC_KEYS):
         return "宇宙世紀"
-    return "その他"
+    return "SD・その他"
 
 
 def yen(n: int | None) -> str:
@@ -308,7 +308,7 @@ footer p {{ margin:4px 0; }}
   <div class="bar">
     <button class="f on" data-g="ALL">すべて</button>{grade_btns}
     <span class="sep"></span>
-    <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button>
+    <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button><button class="fe" data-e="SD・その他">SD・その他</button>
     <select id="sort" aria-label="並び替え">
       <option value="off">お得な順</option>
       <option value="price">価格が安い順</option>
