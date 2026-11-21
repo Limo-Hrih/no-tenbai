@@ -43,6 +43,28 @@ def short_title(t: str) -> str:
     return s or t
 
 
+UC_KEYS = ["HGUC", "宇宙世紀", "機動戦士Zガンダム", "ガンダムZZ", "逆襲のシャア", "ガンダムUC", "ユニコーン", "F91", "Vガンダム",
+           "閃光のハサウェイ", "0080", "0083", "第08MS小隊", "THE ORIGIN", "GQuuuuuuX", "ガンダムNT", "クロスボーン",
+           "RX-78", "ザク", "ジオン", "ガンキャノン", "ガンタンク", "サザビー", "νガンダム", "Hi-ν", "シナンジュ", "クシャトリヤ",
+           "ゼータ", "Mk-II", "ジオング", "グフ", "ドム", "ギャン", "ゲルググ", "メッサー", "Ξガンダム", "アリュゼウス", "バウ", "ガンダムZERO"]
+ANOTHER_KEYS = ["SEED", "ストライク", "フリーダム", "ジャスティス", "アストレイ", "ガンダム00", "ダブルオー", "エクシア",
+                "ガンダムW", "ウイング", "ヘビーアームズ", "デスサイズ", "シェンロン", "エピオン", "Gガンダム", "ゴッドガンダム",
+                "シャイニング", "HGFC", "HGAC", "HGCE", "ガンダムAGE", "レギルス", "鉄血", "バルバトス", "バエル", "グレイズ",
+                "キマリス", "水星の魔女", "エアリアル", "ルブリス", "ディランザ", "ベギル", "デミトレーナー", "ガンダムX",
+                "∀ガンダム", "ターンエー", "レコンギスタ", "G-セルフ", "エクリプス"]
+
+
+def era_of(title: str) -> str:
+    t = title
+    if any(k in t for k in ("三国創傑伝", "SDW HEROES", "ガンプラくん")):
+        return "その他"
+    if any(k in t for k in ANOTHER_KEYS):
+        return "アナザー"
+    if any(k in t for k in UC_KEYS):
+        return "宇宙世紀"
+    return "その他"
+
+
 def yen(n: int | None) -> str:
     return "—" if n is None else f"¥{n:,}"
 
@@ -59,8 +81,10 @@ def card(p: Product, stamp: str) -> str:
         badge = f'<div class="badge"><span class="badge-l">転売相場より</span><span class="badge-n">−{moff}%</span></div>'
     elif off is not None and off > 0:
         badge = f'<div class="badge"><span class="badge-l">定価より</span><span class="badge-n">−{off}%</span></div>'
+    elif p.list_price:
+        badge = '<div class="badge badge-even"><span class="badge-n">定価</span></div>'
     else:
-        badge = ""
+        badge = '<div class="badge badge-even"><span class="badge-n">正規販売</span></div>'
     img = f'<img src="{e(p.image)}" alt="" loading="lazy">' if p.image else '<div class="noimg">NO IMAGE</div>'
     tags = ""
     if p.is_new:
@@ -74,7 +98,7 @@ def card(p: Product, stamp: str) -> str:
         meta.append(f"転売相場 {yen(p.market_low)}")
     meta_html = "".join(f'<div class="meta">{m}</div>' for m in meta)
     return f'''
-<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-price="{b.price}">
+<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-price="{b.price}">
   <div class="thumb">{img}{badge}{f'<div class="tags">{tags}</div>' if tags else ''}</div>
   <div class="body">
     <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
@@ -211,6 +235,9 @@ main {{ padding:8px 20px 40px; }}
 .bar {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 14px; }}
 .f, select {{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px;
   font:inherit; font-size:13px; cursor:pointer; color:var(--ink); }}
+.fe {{ border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font:inherit; font-size:13px; cursor:pointer; color:var(--ink); }}
+.fe.on {{ background:var(--blue); color:#fff; border-color:var(--blue); }}
+.sep {{ width:1px; height:20px; background:var(--line); margin:0 4px; }}
 .f.on {{ background:var(--ink); color:#fff; border-color:var(--ink); }}
 select {{ margin-left:auto; }}
 .grid {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:10px; }}
@@ -224,6 +251,7 @@ select {{ margin-left:auto; }}
   padding:4px 7px 3px; line-height:1.05; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,.18); }}
 .badge-l {{ display:block; font-size:9px; font-weight:700; opacity:.92; }}
 .badge-n {{ display:block; font-size:19px; font-weight:800; }}
+.badge-even {{ background:var(--blue); }} .badge-even .badge-n {{ font-size:14px; padding:2px 1px; }}
 .tags {{ position:absolute; right:6px; top:6px; display:flex; gap:3px; }}
 .tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; color:#fff; }}
 .tg-new {{ background:var(--red); }} .tg-re {{ background:var(--blue); }}
@@ -245,8 +273,10 @@ select {{ margin-left:auto; }}
 .status small {{ font-size:10px; margin-left:4px; opacity:.8; }}
 .ok {{ background:#e3f4ef; color:var(--green); font-weight:700; }}
 .wait {{ background:#f0f2f5; color:var(--sub); }}
-.about {{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-top:28px; font-size:14px; }}
-.about h2 {{ font-size:16px; margin:0 0 8px; }}
+.about {{ background:#fff; border:1px solid var(--line); border-left:6px solid var(--blue); border-radius:14px; padding:20px 24px; margin-top:28px; font-size:14px; }}
+.about h2 {{ font-size:13px; margin:0 0 6px; color:var(--sub); font-weight:700; letter-spacing:.05em; }}
+.about-lead {{ font-size:20px; font-weight:800; margin:0 0 8px; color:var(--ink); }}
+.about p {{ margin:6px 0; line-height:1.8; }}
 footer {{ border-top:1px solid var(--line); background:#fff; padding:20px; font-size:12px; color:var(--sub); }}
 footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
@@ -272,12 +302,13 @@ footer p {{ margin:4px 0; }}
   <h2>今でも、ガンプラは安く買えます。――ほら！</h2>
   <p>「転売ヤーのせいで高い」と思われがちですが、<b>転売相場の半額以下</b>や<b>定価より安い</b>ガンプラは、まだまだあります。転売ヤーが一番困るのは、みんなが高い転売品に手を出さず、定価や安い値段のガンプラをどんどん買うこと。転売ヤーの言い値で買わずに済むガンプラだけを、毎日まとめています。</p>
 </section>
-{sample_banner}
 <section id="fair">
   {new_html}
   <p class="lead"><b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけを載せています。毎日更新。</p>
   <div class="bar">
     <button class="f on" data-g="ALL">すべて</button>{grade_btns}
+    <span class="sep"></span>
+    <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button>
     <select id="sort" aria-label="並び替え">
       <option value="off">お得な順</option>
       <option value="price">価格が安い順</option>
@@ -292,9 +323,12 @@ footer p {{ margin:4px 0; }}
   {"".join(resale_html)}
 </section>
 <section class="about">
-  <h2>このサイトについて</h2>
-  <p>人気のガンプラは、品薄になると定価より高い値段で出品されがちです。このサイトは、ファンが正規の値段で買える場所を見つけやすくするために、Amazon.co.jp本体の販売や定価に近い出品だけを毎日選んで紹介しています。紹介するのは正規の販売や定価に近い出品だけで、転売価格の出品にはリンクしません。</p>
+  <h2>このサイトを作った理由</h2>
+  <p class="about-lead">転売ヤーを、ガンプラの世界からなくしたい。</p>
+  <p>でも、転売ヤーを責めたり攻撃したりしても、きっと何も変わりません。だったら、正規の値段で、できればもっと安く買える場所を、誰にでもわかるように示せばいい。みんなが安く買えば買うほど、高値で売りつけようとする転売ヤーは困ります。</p>
+  <p>NO転売ガンプラ市場は、そのためのお得なガンプラ情報を、ファンみんなで共有するために作りました。欲しかったあのキット、定価で手に入るかもしれません。</p>
 </section>
+{sample_banner}
 </main>
 <footer><div class="fwrap">
   <p>※「転売相場」は、Amazonマーケットプレイスやメルカリなどでの出品を調べて算出した概算です。すべてが転売ヤーによる出品とは限りません（中古品などを含む場合があります）。</p>
@@ -312,12 +346,17 @@ footer p {{ margin:4px 0; }}
     document.getElementById('resale').hidden = t.dataset.t !== 'resale';
   }}));
   const grid = document.getElementById('grid');
+  let g = 'ALL', era = 'ALL';
+  const apply = () => grid.querySelectorAll('.card').forEach(c => {{
+    c.hidden = (g !== 'ALL' && c.dataset.grade !== g) || (era !== 'ALL' && c.dataset.era !== era);
+  }});
   const btns = document.querySelectorAll('.f');
   btns.forEach(b => b.addEventListener('click', () => {{
-    btns.forEach(x => x.classList.toggle('on', x === b));
-    grid.querySelectorAll('.card').forEach(c => {{
-      c.hidden = b.dataset.g !== 'ALL' && c.dataset.grade !== b.dataset.g;
-    }});
+    btns.forEach(x => x.classList.toggle('on', x === b)); g = b.dataset.g; apply();
+  }}));
+  const ebtns = document.querySelectorAll('.fe');
+  ebtns.forEach(b => b.addEventListener('click', () => {{
+    ebtns.forEach(x => x.classList.toggle('on', x === b)); era = b.dataset.e; apply();
   }}));
   document.getElementById('sort').addEventListener('change', ev => {{
     const k = ev.target.value;

@@ -90,6 +90,15 @@ def main() -> None:
         catalog.append(c)
 
     data = ROOT / "data"
+    # 公式の再販リスト（改定後の定価）と結び付ける
+    official = {}
+    for grp in json.loads((data / "resale.json").read_text(encoding="utf-8")):
+        for it in grp["items"]:
+            if it.get("asin"):
+                official[it["asin"]] = (it["price_after"], grp["quarter"])
+    for c in catalog:
+        if c["asin"] in official:
+            c["official_price"], c["resale_quarter"] = official[c["asin"]]
     (data / "real_items.json").write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
     (data / "catalog.real.json").write_text(json.dumps(catalog, ensure_ascii=False), encoding="utf-8")
 
