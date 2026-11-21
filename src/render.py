@@ -87,22 +87,24 @@ def card(p: Product, stamp: str) -> str:
         badge = '<div class="badge badge-even"><span class="badge-n">正規販売</span></div>'
     img = f'<img src="{e(p.image)}" alt="" loading="lazy">' if p.image else '<div class="noimg">NO IMAGE</div>'
     tags = ""
+    if max(off or 0, moff or 0) >= 50:
+        tags += '<span class="tg tg-half">半額以下！</span>'
     if p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
         tags += '<span class="tg tg-re">再販</span>'
     meta = []
     if p.list_price:
-        meta.append(f"希望価格 {yen(p.list_price)}")
+        meta.append(f"希望価格 <s>{yen(p.list_price)}</s>")
     if moff is not None and moff >= 10:
-        meta.append(f"転売相場 {yen(p.market_low)}")
+        meta.append(f"転売相場 <s>{yen(p.market_low)}</s>")
     meta_html = "".join(f'<div class="meta">{m}</div>' for m in meta)
     return f'''
 <a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-price="{b.price}">
   <div class="thumb">{img}{badge}{f'<div class="tags">{tags}</div>' if tags else ''}</div>
   <div class="body">
     <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
-    <div class="price">{yen(b.price)}</div>
+    <div class="price"><span class="yen">¥</span>{b.price:,}</div>
     {meta_html}
   </div>
 </a>'''
@@ -203,12 +205,12 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
 <title>{SITE_NAME}｜転売価格なしで買えるガンプラ</title>
 <meta name="description" content="{SITE_TAGLINE}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Orbitron:wght@700;900&family=Oxanium:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root {{
   --bg:#f4f8f7; --panel:#ffffff; --panel2:#ffffff; --line:#d9e7e3; --line2:#9fd8c4;
-  --ink:#1d2b2a; --sub:#6b7f7a; --mint:#10a37a; --mint-soft:#0b8a66; --amber:#ff8a3d; --alert:#ef4f43; --sky:#2b8fd6;
-  --mono:"Share Tech Mono","Rajdhani",ui-monospace,monospace;
+  --ink:#1d2b2a; --sub:#6b7f7a; --mint:#10a37a; --mint-soft:#0b8a66; --amber:#e8281e; --sale:#d81f17; --alert:#ef4f43; --sky:#2b8fd6;
+  --mono:"Oxanium","Share Tech Mono",ui-monospace,monospace; --digi:"Orbitron","Oxanium",sans-serif;
 }}
 * {{ box-sizing:border-box; }}
 body {{ margin:0; font-family:"M PLUS Rounded 1c","Hiragino Sans","Noto Sans JP",sans-serif; color:var(--ink); line-height:1.6;
@@ -261,19 +263,22 @@ select {{ margin-left:auto; }}
 .thumb {{ position:relative; aspect-ratio:1/1; margin:0; background:#fff; overflow:hidden; border-bottom:1px solid #eef3f1; }}
 .thumb img {{ width:100%; height:100%; object-fit:contain; display:block; }}
 .noimg {{ display:grid; place-items:center; height:100%; color:#9aa; font-size:12px; letter-spacing:.1em; }}
-.badge {{ position:absolute; left:5px; top:5px; background:var(--amber); color:#fff; border-radius:8px; padding:3px 7px 2px;
+.badge {{ position:absolute; left:0; top:0; background:linear-gradient(180deg,#ff3b2f,#d81f17); color:#fff; border-radius:0 0 12px 0; padding:4px 9px 4px 7px;
   line-height:1.05; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.25); }}
-.badge-l {{ display:block; font-size:9px; font-weight:800; }}
-.badge-n {{ display:block; font-family:var(--mono); font-size:21px; font-weight:700; letter-spacing:-.01em; }}
-.badge-even {{ background:var(--mint); color:#fff; }} .badge-even .badge-n {{ font-family:inherit; font-size:13px; font-weight:800; padding:2px 1px; }}
-.tags {{ position:absolute; right:5px; top:5px; display:flex; gap:3px; }}
+.badge-l {{ display:block; font-size:9px; font-weight:800; letter-spacing:.02em; }}
+.badge-n {{ display:block; font-family:var(--digi); font-size:24px; font-weight:900; letter-spacing:-.02em; text-shadow:0 1px 0 rgba(0,0,0,.25); }}
+.badge-even {{ background:linear-gradient(180deg,#14b386,#0e936c); color:#fff; }} .badge-even .badge-n {{ font-family:inherit; font-size:13px; font-weight:800; padding:2px 1px; }}
+.tags {{ position:absolute; right:5px; bottom:5px; display:flex; gap:3px; }}
 .tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; }}
+.tg-half {{ background:#ffd600; color:#2a1d00; font-size:11px; box-shadow:0 1px 4px rgba(0,0,0,.2); }}
+.meta s {{ font-family:var(--mono); font-weight:700; }}
 .tg-new {{ background:var(--alert); color:#fff; }} .tg-re {{ background:var(--sky); color:#fff; }}
 .body {{ padding:7px 10px 12px; display:flex; flex-direction:column; gap:1px; flex:1; }}
 .body h3 {{ font-size:12px; line-height:1.4; margin:0; font-weight:700; display:-webkit-box; -webkit-line-clamp:2;
   -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em; color:var(--ink); }}
-.price {{ font-family:var(--mono); font-size:22px; color:var(--ink); margin-top:auto; }}
-.meta {{ font-size:11px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }}
+.price {{ font-family:var(--mono); font-size:30px; font-weight:800; color:var(--sale); margin:auto 0 2px; letter-spacing:-.01em; line-height:1.1; text-align:center; }}
+.price .yen {{ font-size:.6em; margin-right:1px; }}
+.meta {{ font-size:11px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }}
 .empty {{ color:var(--sub); }}
 .newbox {{ background:#fff5f4; border:1px solid rgba(255,111,97,.5); border-radius:14px; padding:14px; margin:14px 0 6px; }}
 .newbox h2 {{ margin:0 0 10px; font-size:16px; color:var(--alert); }} .newbox h2 small {{ color:var(--sub); font-weight:400; font-size:12px; }}
@@ -305,7 +310,7 @@ footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
 @media (max-width:560px) {{
   .logo {{ font-size:19px; }} .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
-  .badge-n {{ font-size:15px; }} .price {{ font-size:16px; }} .meta {{ font-size:10px; white-space:normal; }}
+  .badge-n {{ font-size:15px; }} .price {{ font-size:20px; }} .meta {{ font-size:10px; white-space:normal; }}
   select {{ margin-left:0; }} .about-lead {{ font-size:18px; }} .card::before, .card::after {{ width:8px; height:8px; }}
   .rt th:nth-child(2), .rt td.rp {{ white-space:normal; }}
 }}
