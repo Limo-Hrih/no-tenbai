@@ -29,16 +29,19 @@ def load(name: str):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", action="store_true")
+    ap.add_argument("--real-snapshot", action="store_true", help="Chromeで集めた実データで試作を作る")
     ap.add_argument("--out", default=str(ROOT / "dist" / "index.html"))
     ap.add_argument("--tolerance", type=float, default=0.05)
     args = ap.parse_args()
 
-    catalog_file = "catalog.sample.json" if args.sample else "catalog.json"
+    catalog_file = "catalog.sample.json" if args.sample else ("catalog.real.json" if args.real_snapshot else "catalog.json")
     catalog = {c["asin"]: c for c in load(catalog_file)}
     resale = load("resale.json")
 
     if args.sample:
         raw_items = load("sample_items.json")
+    elif args.real_snapshot:
+        raw_items = load("real_items.json")
     else:
         from creators_api import CreatorsClient
         client = CreatorsClient()
@@ -56,7 +59,7 @@ def main() -> None:
     if prev is not None:
         for p in fair:
             p.is_new = p.best.is_amazon and p.asin not in prev
-    if not args.sample:
+    if not args.sample and not args.real_snapshot:
         state_file.parent.mkdir(parents=True, exist_ok=True)
         state_file.write_text(json.dumps(current, indent=0))
 
@@ -64,11 +67,11 @@ def main() -> None:
     by_name = {c.get("official_name"): a for a, c in catalog.items() if c.get("official_name")}
     for grp in resale:
         for r in grp["items"]:
-            r.setdefault("asin", by_name.get(r["name"]))
+            r["asin"] = r.get("asin") or by_name.get(r["name"])
 
     pred_file = ROOT / "data" / "predictions.json"
     pred = json.loads(pred_file.read_text(encoding="utf-8")) if pred_file.exists() else None
-    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred)
+    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred, snapshot=args.real_snapshot)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

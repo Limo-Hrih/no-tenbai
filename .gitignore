@@ -4,3 +4,5 @@ __pycache__/
 .env
 *.csv
 preview.html
+data/real_items.json
+data/catalog.real.json

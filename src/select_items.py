@@ -129,5 +129,5 @@ def pick_fair(products: list[Product], tolerance: float = DEFAULT_TOLERANCE) -> 
         p.best = choose_fair_offer(p, tolerance)
         if p.best:
             out.append(p)
-    out.sort(key=lambda p: (-(p.off_pct or 0), p.best.price))
+    out.sort(key=lambda p: (-max(p.off_pct or 0, p.market_off_pct or 0), p.best.price))
     return out

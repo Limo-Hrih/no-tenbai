@@ -4,14 +4,48 @@
   "source": "https://bandai-hobby.net/notice/01_6676/",
   "updated": "2026年10月1日",
   "items": [
-   {"name": "HG 1/144 ガンダムアストレイ レッドフレーム", "price_before": 1320, "price_after": 1650},
-   {"name": "HG 1/144 ガンダムアストレイ ブルーフレーム", "price_before": 1320, "price_after": 1650},
-   {"name": "HG 1/144 R02 デュエルガンダム アサルトシュラウド", "price_before": 1320, "price_after": 1650},
-   {"name": "HG 1/144 R03 バスターガンダム", "price_before": 1100, "price_after": 1430},
-   {"name": "HG 1/144 R04 ブリッツガンダム", "price_before": 1320, "price_after": 1650},
-   {"name": "HG 1/144 R05 イージスガンダム", "price_before": 1320, "price_after": 1650},
-   {"name": "HG 1/144 R06 モビルジン", "price_before": 1100, "price_after": 1430},
-   {"name": "HG 1/144 R07 モビルシグー", "price_before": 1320, "price_after": 1650}
+   {
+    "name": "HG 1/144 ガンダムアストレイ レッドフレーム",
+    "price_before": 1320,
+    "price_after": 1650,
+    "asin": "B00067YY2M"
+   },
+   {
+    "name": "HG 1/144 ガンダムアストレイ ブルーフレーム",
+    "price_before": 1320,
+    "price_after": 1650,
+    "asin": "B0883KVRJN"
+   },
+   {
+    "name": "HG 1/144 R02 デュエルガンダム アサルトシュラウド",
+    "price_before": 1320,
+    "price_after": 1650
+   },
+   {
+    "name": "HG 1/144 R03 バスターガンダム",
+    "price_before": 1100,
+    "price_after": 1430
+   },
+   {
+    "name": "HG 1/144 R04 ブリッツガンダム",
+    "price_before": 1320,
+    "price_after": 1650
+   },
+   {
+    "name": "HG 1/144 R05 イージスガンダム",
+    "price_before": 1320,
+    "price_after": 1650
+   },
+   {
+    "name": "HG 1/144 R06 モビルジン",
+    "price_before": 1100,
+    "price_after": 1430
+   },
+   {
+    "name": "HG 1/144 R07 モビルシグー",
+    "price_before": 1320,
+    "price_after": 1650
+   }
   ]
  }
 ]

@@ -35,7 +35,7 @@ def card(p: Product, stamp: str) -> str:
     b = p.best
     off = p.off_pct
     moff = p.market_off_pct
-    if moff is not None and moff >= 10:
+    if moff is not None and moff >= 10 and moff >= (off or 0):
         badge = f'<div class="badge"><span class="badge-l">マケプレより</span><span class="badge-n">−{moff}%</span></div>'
     elif off is not None and off > 0:
         badge = f'<div class="badge"><span class="badge-l">定価比</span><span class="badge-n">−{off}%</span></div>'
@@ -52,7 +52,7 @@ def card(p: Product, stamp: str) -> str:
     if p.is_new:
         resale = '<span class="chip chip-new">NEW 今日から</span>' + resale
     return f'''
-<article class="card" data-grade="{e(grade_of(p.title))}" data-off="{off or 0}" data-price="{b.price}">
+<article class="card" data-grade="{e(grade_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-price="{b.price}">
   <a class="thumb" href="{e(p.url)}" target="_blank" rel="sponsored noopener">{img}{badge}</a>
   <div class="body">
     <h3><a href="{e(p.url)}" target="_blank" rel="sponsored noopener">{e(p.title)}</a></h3>
@@ -76,7 +76,7 @@ def resale_rows(resale: list[dict], fair_by_asin: dict[str, Product], stamp: str
             status = (f'<a class="status ok" href="{e(p.url)}" target="_blank" rel="sponsored noopener">'
                       f'{buy_label(p)}<small>（{e(stamp)}時点）</small></a>')
         else:
-            status = '<span class="status wait">いまは定価以下の出品なし・再販待ち</span>'
+            status = '<span class="status wait">Amazon本体の販売は確認できず</span>'
         before = r.get("price_before")
         rows.append(f'''
 <tr data-grade="{e(grade_of(r["name"]))}">
@@ -125,7 +125,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
 
 
 def render(fair: list[Product], resale_groups: list[dict], generated_at: datetime,
-           sample: bool = False, pred: dict | None = None) -> str:
+           sample: bool = False, pred: dict | None = None, snapshot: bool = False) -> str:
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
     cards = "\n".join(card(p, stamp) for p in fair) or '<p class="empty">いま該当する商品はありません。</p>'
@@ -148,7 +148,11 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <tbody>{resale_rows(grp["items"], fair_by_asin, stamp)}</tbody></table>
 </section>''')
 
-    sample_banner = ('<div class="sample">これは見本データによる試作画面です。表示中の価格・商品はすべて架空です。</div>'
+    if snapshot:
+        sample_banner = (f'<div class="sample">試作版：{e(stamp)}ごろにAmazon.co.jpの検索結果から集めた実データです（非公開の確認用）。'
+                         '本番ではAmazonのAPIで毎日自動更新します。「今日から」の枠は2日分のデータがそろうと表示されます。</div>')
+    else:
+      sample_banner = ('<div class="sample">これは見本データによる試作画面です。表示中の価格・商品はすべて架空です。</div>'
                      if sample else "")
 
     return f'''<!DOCTYPE html>
@@ -270,7 +274,7 @@ footer p {{ margin:4px 0; }}
   <div class="bar">
     <button class="f on" data-g="ALL">すべて</button>{grade_btns}
     <select id="sort" aria-label="並び替え">
-      <option value="off">定価比が大きい順</option>
+      <option value="off">お得な順</option>
       <option value="price">価格が安い順</option>
     </select>
   </div>
