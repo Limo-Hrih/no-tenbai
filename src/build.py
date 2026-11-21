@@ -53,6 +53,7 @@ def main() -> None:
     # 「今日Amazon本体で買えるようになった」判定。保存するのはASINの一覧だけ
     # （ASINは無期限に保存してよいと規約に明記されている）。
     state_file = ROOT / "data" / ("sample_prev_amazon_asins.json" if args.sample
+                                  else "sample_prev_amazon_asins.json.real" if args.real_snapshot
                                   else "state/amazon_asins.json")
     prev = set(json.loads(state_file.read_text())) if state_file.exists() else None
     current = sorted(p.asin for p in fair if p.best.is_amazon)
