@@ -8,7 +8,8 @@ from datetime import datetime
 from select_items import Product
 
 SITE_NAME = "定価でガンプラ"
-SITE_TAGLINE = "転売価格を除いて、正規の値段で買えるガンプラだけを毎日まとめています"
+SITE_TAGLINE = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
+SITE_TAGLINE_HTML = "転売価格はNo！<br>正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 
 GRADES = ["HG", "RG", "MG", "PG", "EG", "SD", "その他"]
 
@@ -260,7 +261,7 @@ footer p {{ margin:4px 0; }}
 <div class="pr">本ページはプロモーション（Amazonアソシエイト）を含みます</div>
 <header><div class="hwrap">
   <h1 class="logo"><span class="b"></span><span class="r"></span><span class="y"></span>{SITE_NAME}</h1>
-  <p class="tag">{SITE_TAGLINE}</p>
+  <p class="tag">{SITE_TAGLINE_HTML}</p>
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" aria-selected="true" data-t="fair">いま定価で買える</button>
     <button class="tab" role="tab" aria-selected="false" data-t="resale">再販情報</button>
