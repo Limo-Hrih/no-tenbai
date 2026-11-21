@@ -263,10 +263,10 @@ select {{ margin-left:auto; }}
 .thumb {{ position:relative; aspect-ratio:1/1; margin:0; background:#fff; overflow:hidden; border-bottom:1px solid #eef3f1; }}
 .thumb img {{ width:100%; height:100%; object-fit:contain; display:block; }}
 .noimg {{ display:grid; place-items:center; height:100%; color:#9aa; font-size:12px; letter-spacing:.1em; }}
-.badge {{ position:absolute; left:0; top:0; background:linear-gradient(180deg,#ff3b2f,#d81f17); color:#fff; border-radius:0 0 12px 0; padding:4px 9px 4px 7px;
+.badge {{ position:absolute; left:0; top:0; background:linear-gradient(180deg,#ff3b2f,#d81f17); color:#fff; border-radius:0 0 10px 0; padding:3px 7px 3px 6px;
   line-height:1.05; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.25); }}
-.badge-l {{ display:block; font-size:9px; font-weight:800; letter-spacing:.02em; }}
-.badge-n {{ display:block; font-family:var(--digi); font-size:24px; font-weight:900; letter-spacing:-.02em; text-shadow:0 1px 0 rgba(0,0,0,.25); }}
+.badge-l {{ display:block; font-size:8px; font-weight:800; letter-spacing:.02em; }}
+.badge-n {{ display:block; font-family:var(--mono); font-size:18px; font-weight:800; letter-spacing:-.01em; }}
 .badge-even {{ background:linear-gradient(180deg,#14b386,#0e936c); color:#fff; }} .badge-even .badge-n {{ font-family:inherit; font-size:13px; font-weight:800; padding:2px 1px; }}
 .tags {{ position:absolute; right:5px; bottom:5px; display:flex; gap:3px; }}
 .tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; }}
@@ -276,7 +276,7 @@ select {{ margin-left:auto; }}
 .body {{ padding:7px 10px 12px; display:flex; flex-direction:column; gap:1px; flex:1; }}
 .body h3 {{ font-size:12px; line-height:1.4; margin:0; font-weight:700; display:-webkit-box; -webkit-line-clamp:2;
   -webkit-box-orient:vertical; overflow:hidden; min-height:2.8em; color:var(--ink); }}
-.price {{ font-family:var(--mono); font-size:30px; font-weight:800; color:var(--sale); margin:auto 0 2px; letter-spacing:-.01em; line-height:1.1; text-align:center; }}
+.price {{ font-family:var(--mono); font-size:26px; font-weight:800; color:var(--ink); margin:auto 0 2px; letter-spacing:-.01em; line-height:1.1; text-align:center; }}
 .price .yen {{ font-size:.6em; margin-right:1px; }}
 .meta {{ font-size:11px; color:var(--sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }}
 .empty {{ color:var(--sub); }}
@@ -310,7 +310,7 @@ footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
 @media (max-width:560px) {{
   .logo {{ font-size:19px; }} .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
-  .badge-n {{ font-size:15px; }} .price {{ font-size:20px; }} .meta {{ font-size:10px; white-space:normal; }}
+  .badge-n {{ font-size:13px; }} .badge-l {{ font-size:7px; }} .price {{ font-size:18px; }} .meta {{ font-size:10px; white-space:normal; }}
   select {{ margin-left:0; }} .about-lead {{ font-size:18px; }} .card::before, .card::after {{ width:8px; height:8px; }}
   .rt th:nth-child(2), .rt td.rp {{ white-space:normal; }}
 }}
