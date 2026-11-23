@@ -77,6 +77,16 @@ def e(s) -> str:
     return html.escape(str(s), quote=True)
 
 
+# 並べ替えの選択肢。「発売が新しい／古い順」は、Amazonの商品番号（ASIN）の登録順で近似する
+SORT_OPTIONS = ("<option value=\"off\">お得な順</option>"
+                "<option value=\"new\">発売が新しい順</option>"
+                "<option value=\"old\">発売が古い順</option>"
+                "<option value=\"price\">価格が安い順</option>"
+                "<option value=\"priceDesc\">価格が高い順</option>"
+                "<option value=\"moff\">転売相場との差が大きい順</option>"
+                "<option value=\"loff\">定価からの値下げ率が大きい順</option>"
+                "<option value=\"grade\">グレード順（PG→MG→RG→HG→EG→SD）</option>")
+
 # テスト公開版（Amazonの価格・画像を載せない版）。render(lite=True) で切り替える
 LITE = False
 PARTNER_TAG = "limolimo-22"
@@ -96,7 +106,7 @@ def lite_card(p: Product) -> str:
         tags += '<span class="tg tg-re">再販</span>'
     lp = f'<div class="price lp"><small>定価</small><span class="yen">¥</span>{p.list_price:,}</div>' if p.list_price else '<div class="price lp"></div>'
     return f'''
-<a class="card" href="{e(amazon_link(p.asin))}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="0" data-price="{p.list_price or 0}">
+<a class="card" href="{e(amazon_link(p.asin))}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="0" data-moff="0" data-loff="0" data-lp="{p.list_price or 0}" data-asin="{e(p.asin)}" data-price="{p.list_price or 0}">
   <div class="thumb">{img}<div class="badge badge-even"><span class="badge-n">本体販売</span></div>{f'<div class="tags">{tags}</div>' if tags else ''}</div>
   <div class="body">
     <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
@@ -138,7 +148,7 @@ def card(p: Product, stamp: str) -> str:
         meta.append(f"転売相場 <s>{yen(p.market_low)}</s>")
     meta_html = "".join(f'<div class="meta">{m}</div>' for m in meta)
     return f'''
-<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-price="{b.price}">
+<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-moff="{moff or 0}" data-loff="{off or 0}" data-lp="{p.list_price or 0}" data-asin="{e(p.asin)}" data-price="{b.price}">
   <div class="thumb">{img}{badge}{f'<div class="tags">{tags}</div>' if tags else ''}</div>
   <div class="body">
     <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
@@ -494,7 +504,7 @@ footer p {{ margin:4px 0; }}
     <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button><button class="fe" data-e="SD・その他">SD・その他</button>
     <span class="fstate" id="fstate" hidden>絞り込み中 <button type="button" id="freset">解除</button></span>
     <select id="sort" aria-label="並び替え">
-{'<option value="off">おすすめ順</option><option value="price">定価が安い順</option>' if LITE else '<option value="off">お得な順</option><option value="price">価格が安い順</option>'}
+{SORT_OPTIONS}
     </select>
 </div></nav>
 <main>
@@ -561,11 +571,21 @@ footer p {{ margin:4px 0; }}
   const ebtns = document.querySelectorAll('.fe');
   ebtns.forEach(b => b.addEventListener('click', () => {{ toggle(es, b.dataset.e); apply(); }}));
   document.getElementById('freset').addEventListener('click', () => {{ gs.clear(); es.clear(); apply(); }});
+  const GORD = {{PG: 0, MG: 1, RG: 2, HG: 3, EG: 4, SD: 5}};
+  const n = (c, k) => +c.dataset[k] || 0;
+  const cmp = {{
+    off: (a, b) => n(b, 'off') - n(a, 'off') || n(a, 'price') - n(b, 'price'),
+    new: (a, b) => b.dataset.asin.localeCompare(a.dataset.asin),
+    old: (a, b) => a.dataset.asin.localeCompare(b.dataset.asin),
+    price: (a, b) => n(a, 'price') - n(b, 'price'),
+    priceDesc: (a, b) => n(b, 'price') - n(a, 'price'),
+    moff: (a, b) => n(b, 'moff') - n(a, 'moff') || n(a, 'price') - n(b, 'price'),
+    loff: (a, b) => n(b, 'loff') - n(a, 'loff') || n(a, 'price') - n(b, 'price'),
+    grade: (a, b) => (GORD[a.dataset.grade] ?? 9) - (GORD[b.dataset.grade] ?? 9) || n(b, 'price') - n(a, 'price'),
+  }};
   document.getElementById('sort').addEventListener('change', ev => {{
-    const k = ev.target.value;
-    grids.forEach(grid => [...grid.querySelectorAll('.card')].sort((a, b) => k === 'off'
-      ? (b.dataset.off - a.dataset.off) || (a.dataset.price - b.dataset.price)
-      : (a.dataset.price - b.dataset.price)).forEach(c => grid.appendChild(c)));
+    const f = cmp[ev.target.value] || cmp.off;
+    grids.forEach(grid => [...grid.querySelectorAll('.card')].sort(f).forEach(c => grid.appendChild(c)));
   }});
 }})();
 </script>
