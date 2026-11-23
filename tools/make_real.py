@@ -12,6 +12,7 @@ import argparse
 import base64
 import io
 import json
+import re
 import subprocess
 import sys
 import urllib.request
@@ -23,12 +24,18 @@ ROOT = Path(__file__).resolve().parent.parent
 S, PAD = 220, 6
 
 
+# ガンプラではない商品（食玩など）。収集側でも弾いているが、念のためここでも除く
+NOT_KIT = re.compile(r"食玩|チューインガム|ガム|CONVERGE|ウエハー|BOX販売", re.I)
+
+
 def parse(path: Path) -> list[dict]:
     rows = []
     for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip() or line.startswith("#"):
             continue
         a, amz, lp, med, n, img, title = line.split("|", 6)
+        if NOT_KIT.search(title):
+            continue
         rows.append(dict(asin=a.replace(".", ""), amazon=int(amz) if amz else None,
                          lp=int(lp) if lp else None, med=int(med) if med else None,
                          n=int(n or 0), img=img.replace(".", ""), title=title))

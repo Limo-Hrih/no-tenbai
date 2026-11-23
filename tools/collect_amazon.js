@@ -30,7 +30,7 @@ window.__gpChunk = (i, size = 40) => (window.__gpOut || []).slice(i * size, (i +
   }
   const isKit = t => (/(HG|RG|MG|PG|EG|ENTRY GRADE|SD|BB戦士|MGSD|RE\/100|FULL MECHANICS|1\/144|1\/100|1\/60|ガンプラ)/i.test(t)
       && /ガンダム|GUNDAM|ガンプラ|ザク|シャア|ジム|ゲルググ|ドム|グフ|サザビー|ジオン|ユニコーン|バルバトス|エアリアル|GQuuuuuuX|ストライク|フリーダム|ウイング|ゼータ|ガンキャノン|ガンタンク|SDW HEROES/i.test(t))
-    && !/ASSEMBLE|デカール|マーカー|ニッパー|ヤスリ|塗料|スタンド|アクションベース|カード|30MM|30MS|30MF|30MP|ウエハース|フィギュア|ROBOT魂|超合金|METAL BUILD|一番くじ|LED|オプションパーツ|ボールチェーン|キーチェーン|メガハウス|MegaHouse|\(× ?\d+\)/i.test(t);
+    && !/ASSEMBLE|デカール|マーカー|ニッパー|ヤスリ|塗料|スタンド|アクションベース|カード|30MM|30MS|30MF|30MP|ウエハース|フィギュア|ROBOT魂|超合金|METAL BUILD|一番くじ|LED|オプションパーツ|ボールチェーン|キーチェーン|メガハウス|MegaHouse|食玩|チューインガム|ガム|CONVERGE|ウエハー|BOX販売|\(× ?\d+\)/i.test(t);
   const kits = Object.entries(window.__gp).filter(([a, x]) => isKit(x.t));
   const out = [];
   for (const [a, x] of kits) {
