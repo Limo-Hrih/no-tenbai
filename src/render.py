@@ -15,17 +15,18 @@ SITE_NAME = "NO転売！ガンプラカタログ"
 SITE_TAGLINE = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 SITE_TAGLINE_HTML = "転売価格はNo！ 正規の値段で買えるガンプラ情報だけを毎日まとめています。"
 
-GRADES = ["HG", "RG", "MG", "PG", "EG", "SD"]
+GRADES = ["HG", "RG", "MG", "PG", "EG", "SD", "その他"]
 
 
 def grade_of(title: str) -> str:
     t = title.upper()
     for g, pat in [("PG", r"\bPG\b|PERFECT GRADE"), ("MG", r"\bMG\b|MASTER GRADE"),
                    ("RG", r"\bRG\b|REAL GRADE"), ("EG", r"\bEG\b|ENTRY GRADE"),
-                   ("HG", r"\bHG|HIGH GRADE"), ("SD", r"\bSD\b|BB戦士|SDCS|SDEX")]:
+                   ("HG", r"\bHG|HIGH GRADE"),
+                   ("SD", r"\bSD|BB戦士|SDCS|SDEX|三国創傑伝|SDW HEROES|EXスタンダード|MGSD")]:
         if re.search(pat, t):
             return g
-    return "SD"  # SD・ガンプラくん・ベストメカなどはまとめて「SD」ボタンで表示
+    return "その他"  # ベストメカ・ガンプラくん・RE/100・グレード表記のない商品など
 
 
 SERIES = ["機動戦士ガンダム 水星の魔女", "機動戦士ガンダム 鉄血のオルフェンズ", "機動戦士ガンダム 閃光のハサウェイ キルケーの魔女",
