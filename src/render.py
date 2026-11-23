@@ -82,10 +82,7 @@ SORT_OPTIONS = ("<option value=\"off\">お得な順</option>"
                 "<option value=\"new\">発売が新しい順</option>"
                 "<option value=\"old\">発売が古い順</option>"
                 "<option value=\"price\">価格が安い順</option>"
-                "<option value=\"priceDesc\">価格が高い順</option>"
-                "<option value=\"moff\">転売相場との差が大きい順</option>"
-                "<option value=\"loff\">定価からの値下げ率が大きい順</option>"
-                "<option value=\"grade\">グレード順（PG→MG→RG→HG→EG→SD）</option>")
+                "<option value=\"priceDesc\">価格が高い順</option>")
 
 # テスト公開版（Amazonの価格・画像を載せない版）。render(lite=True) で切り替える
 LITE = False
