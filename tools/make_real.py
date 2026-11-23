@@ -89,7 +89,7 @@ def main() -> None:
             listings.append({"condition": {"value": "New"}, "availability": {"type": "IN_STOCK"},
                              "merchantInfo": {"id": "MKT", "name": "マーケットプレイス"},
                              "price": {"money": {"amount": r["med"]}}})
-        items.append({"asin": r["asin"], "detailPageURL": f"https://www.amazon.co.jp/dp/{r['asin']}",
+        items.append({"asin": r["asin"], "detailPageURL": f"https://www.amazon.co.jp/dp/{r['asin']}?tag=limolimo-22",
                       "itemInfo": {"title": {"displayValue": r["title"]}},
                       "images": {"primary": {"medium": {"url": image_uri(r["img"])}}},
                       "offersV2": {"listings": listings}})
