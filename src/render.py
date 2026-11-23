@@ -303,7 +303,7 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <tbody>{resale_rows(grp["items"], fair_by_asin, stamp)}</tbody></table>
 </section>''')
 
-    if snapshot and not lite:
+    if snapshot and not lite and not notice:
         sample_banner = (f'<div class="sample">試作版：{e(stamp)}ごろにAmazon.co.jpの検索結果から集めた実データです（非公開の確認用）。'
                          '本番ではAmazonのAPIで毎日自動更新します。「今日から」の枠は2日分のデータがそろうと表示されます。</div>')
     else:
