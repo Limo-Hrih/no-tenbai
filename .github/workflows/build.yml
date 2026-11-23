@@ -28,8 +28,8 @@ jobs:
           CREATORS_CREDENTIAL_ID: ${{ secrets.CREATORS_CREDENTIAL_ID }}
           CREATORS_CREDENTIAL_SECRET: ${{ secrets.CREATORS_CREDENTIAL_SECRET }}
           CREATORS_CREDENTIAL_VERSION: ${{ secrets.CREATORS_CREDENTIAL_VERSION }}
-          PARTNER_TAG: ${{ secrets.PARTNER_TAG }}
-        run: python src/build.py
+          PARTNER_TAG: ${{ secrets.PARTNER_TAG || 'limolimo-22' }}
+        run: python src/build.py --notice "テスト公開中です。使ってみた感想・ご意見をお聞かせください。"
       # 「今日から」判定用のASIN一覧だけをコミットする（価格はコミットしない）
       - name: Save ASIN state
         run: |

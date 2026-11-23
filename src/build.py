@@ -32,6 +32,7 @@ def main() -> None:
     ap.add_argument("--real-snapshot", action="store_true", help="Chromeで集めた実データで試作を作る")
     ap.add_argument("--out", default=str(ROOT / "dist" / "index.html"))
     ap.add_argument("--tolerance", type=float, default=0.05)
+    ap.add_argument("--notice", default="", help="ページ上部に出すお知らせ（テスト公開中など）")
     args = ap.parse_args()
 
     catalog_file = "catalog.sample.json" if args.sample else ("catalog.real.json" if args.real_snapshot else "catalog.json")
@@ -72,7 +73,7 @@ def main() -> None:
 
     pred_file = ROOT / "data" / "predictions.json"
     pred = json.loads(pred_file.read_text(encoding="utf-8")) if pred_file.exists() else None
-    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred, snapshot=args.real_snapshot)
+    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred, snapshot=args.real_snapshot, notice=args.notice)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

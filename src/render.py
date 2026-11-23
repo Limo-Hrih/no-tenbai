@@ -233,7 +233,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
 
 
 def render(fair: list[Product], resale_groups: list[dict], generated_at: datetime,
-           sample: bool = False, pred: dict | None = None, snapshot: bool = False) -> str:
+           sample: bool = False, pred: dict | None = None, snapshot: bool = False, notice: str = "") -> str:
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
     pred_names = [n for d in (pred or {}).get("days", []) for n in d["items"]] + list((pred or {}).get("december", []))
@@ -298,6 +298,7 @@ body {{ margin:0; font-family:"M PLUS Rounded 1c","Hiragino Sans","Noto Sans JP"
     repeating-linear-gradient(90deg, rgba(16,163,122,.06) 0 1px, transparent 1px 28px),
     var(--bg); }}
 a {{ color:inherit; }}
+.notice {{ background:#0d2147; color:#fff; font-size:12px; font-weight:700; text-align:center; padding:6px 12px; }}
 .pr {{ background:#fff; border-bottom:1px solid var(--line); font-size:11px; color:var(--sub); text-align:center; padding:3px 8px; }}
 header {{ background:#fff; border-bottom:2px solid var(--mint); padding:10px 20px 8px;
   box-shadow:0 6px 20px rgba(16,163,122,.10); }}
@@ -433,6 +434,7 @@ footer p {{ margin:4px 0; }}
 </head>
 <body>
 <div class="pr">本ページはプロモーション（Amazonアソシエイト）を含みます</div>
+{f'<div class="notice">{e(notice)}</div>' if notice else ""}
 <header><div class="hwrap">
   <div class="brand">
     <h1 class="logo"><img src="{LOGO_URI}" alt="{SITE_NAME}"></h1>
