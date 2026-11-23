@@ -337,7 +337,15 @@ main {{ padding:6px 20px 40px; }}
 .intro h2 {{ font-size:17px; margin:0 0 3px; line-height:1.4; }}
 .intro p {{ margin:0; font-size:13px; line-height:1.7; color:#33433f; }} .intro b {{ color:var(--amber); }}
 .lead {{ margin:12px 0 6px; color:var(--sub); font-size:12px; }} .lead b {{ color:var(--mint-soft); }}
-.bar {{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 12px; }}
+.fbar {{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,.94); backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line); box-shadow:0 4px 14px rgba(20,60,50,.08); transition:background .2s, border-color .2s; }}
+.fbar.active {{ background:rgba(230,247,241,.96); border-bottom:2px solid var(--mint); }}
+.bar {{ max-width:1180px; margin:0 auto; padding:8px 20px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }}
+.fstate {{ font-size:12px; font-weight:800; color:var(--mint-soft); display:inline-flex; align-items:center; gap:6px; margin-left:6px; }}
+.fstate button {{ font:inherit; font-size:11px; font-weight:700; border:1px solid var(--mint); color:var(--mint); background:#fff; border-radius:999px; padding:1px 9px; cursor:pointer; }}
+.gempty {{ color:var(--sub); font-size:13px; margin:4px 0 0; }}
+@media (max-width:640px) {{ .bar {{ flex-wrap:nowrap; overflow-x:auto; padding:7px 12px; scrollbar-width:none; }}
+  .bar::-webkit-scrollbar {{ display:none; }} .f, .fe, select {{ flex:none; }} }}
 .f, .fe, select {{ border:1px solid var(--line2); background:#fff; border-radius:999px; padding:4px 13px;
   font:inherit; font-size:13px; cursor:pointer; color:var(--ink); transition:all .15s; }}
 .f:hover, .fe:hover {{ border-color:var(--mint); color:var(--mint); }}
@@ -439,6 +447,16 @@ footer p {{ margin:4px 0; }}
   </div>
   <p class="tag">{SITE_TAGLINE_HTML}</p>
 </div></header>
+<nav class="fbar" aria-label="絞り込みと並べ替え"><div class="bar">
+    <button class="f on" data-g="ALL">すべて</button>{grade_btns}
+    <span class="sep"></span>
+    <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button><button class="fe" data-e="SD・その他">SD・その他</button>
+    <span class="fstate" id="fstate" hidden>絞り込み中 <button type="button" id="freset">解除</button></span>
+    <select id="sort" aria-label="並び替え">
+      <option value="off">お得な順</option>
+      <option value="price">価格が安い順</option>
+    </select>
+</div></nav>
 <main>
 <section class="intro">
   <span class="hud">MESSAGE</span>
@@ -460,15 +478,6 @@ footer p {{ margin:4px 0; }}
   <div class="chead"><span class="hud">SALE ／ 値下げ中</span>
     <h2>今が買い時！ 値下げ中のガンプラ</h2>
     <p class="clead"><b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけ。転売相場の半額以下や、定価から大幅値下げ中のものも。毎日更新。</p></div>
-  <div class="bar">
-    <button class="f on" data-g="ALL">すべて</button>{grade_btns}
-    <span class="sep"></span>
-    <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button><button class="fe" data-e="SD・その他">SD・その他</button>
-    <select id="sort" aria-label="並び替え">
-      <option value="off">お得な順</option>
-      <option value="price">価格が安い順</option>
-    </select>
-  </div>
   <div class="stampline">価格・在庫は {e(stamp)} 時点のものです。購入時はAmazon.co.jpに表示される価格が適用されます。</div>
   <div class="grid" id="grid">{cards}</div>
 </section>
@@ -489,24 +498,36 @@ footer p {{ margin:4px 0; }}
 </div></footer>
 <script>
 (() => {{
-  const grid = document.getElementById('grid');
+  const grids = [...document.querySelectorAll('.grid')];
+  const bar = document.querySelector('.fbar'), state = document.getElementById('fstate');
   let g = 'ALL', era = 'ALL';
-  const apply = () => grid.querySelectorAll('.card').forEach(c => {{
-    c.hidden = (g !== 'ALL' && c.dataset.grade !== g) || (era !== 'ALL' && c.dataset.era !== era);
-  }});
+  const apply = () => {{
+    grids.forEach(grid => {{
+      let shown = 0;
+      grid.querySelectorAll('.card').forEach(c => {{
+        c.hidden = (g !== 'ALL' && c.dataset.grade !== g) || (era !== 'ALL' && c.dataset.era !== era);
+        if (!c.hidden) shown++;
+      }});
+      let m = grid.querySelector('.gempty');
+      if (!shown && grid.querySelector('.card')) {{
+        if (!m) {{ m = document.createElement('p'); m.className = 'gempty'; m.textContent = 'この条件に合う商品はありません。'; grid.appendChild(m); }}
+      }} else if (m) m.remove();
+    }});
+    const on = g !== 'ALL' || era !== 'ALL';
+    bar.classList.toggle('active', on); state.hidden = !on;
+  }};
   const btns = document.querySelectorAll('.f');
-  btns.forEach(b => b.addEventListener('click', () => {{
-    btns.forEach(x => x.classList.toggle('on', x === b)); g = b.dataset.g; apply();
-  }}));
+  const setG = v => {{ g = v; btns.forEach(x => x.classList.toggle('on', x.dataset.g === v)); }};
+  btns.forEach(b => b.addEventListener('click', () => {{ setG(b.dataset.g); apply(); }}));
   const ebtns = document.querySelectorAll('.fe');
-  ebtns.forEach(b => b.addEventListener('click', () => {{
-    ebtns.forEach(x => x.classList.toggle('on', x === b)); era = b.dataset.e; apply();
-  }}));
+  const setE = v => {{ era = v; ebtns.forEach(x => x.classList.toggle('on', x.dataset.e === v)); }};
+  ebtns.forEach(b => b.addEventListener('click', () => {{ setE(b.dataset.e); apply(); }}));
+  document.getElementById('freset').addEventListener('click', () => {{ setG('ALL'); setE('ALL'); apply(); }});
   document.getElementById('sort').addEventListener('change', ev => {{
     const k = ev.target.value;
-    [...grid.children].sort((a, b) => k === 'off'
+    grids.forEach(grid => [...grid.querySelectorAll('.card')].sort((a, b) => k === 'off'
       ? (b.dataset.off - a.dataset.off) || (a.dataset.price - b.dataset.price)
-      : (a.dataset.price - b.dataset.price)).forEach(c => grid.appendChild(c));
+      : (a.dataset.price - b.dataset.price)).forEach(c => grid.appendChild(c)));
   }});
 }})();
 </script>
