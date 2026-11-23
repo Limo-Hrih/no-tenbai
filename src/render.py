@@ -540,12 +540,13 @@ footer p {{ margin:4px 0; }}
 (() => {{
   const grids = [...document.querySelectorAll('.grid')];
   const bar = document.querySelector('.fbar'), state = document.getElementById('fstate');
-  let g = 'ALL', era = 'ALL';
+  // ボタンはチェックボックス式：「すべて」以外は押すたびにオン/オフ。何も選ばれていなければ「すべて」に戻る
+  const gs = new Set(), es = new Set();
   const apply = () => {{
     grids.forEach(grid => {{
       let shown = 0;
       grid.querySelectorAll('.card').forEach(c => {{
-        c.hidden = (g !== 'ALL' && c.dataset.grade !== g) || (era !== 'ALL' && c.dataset.era !== era);
+        c.hidden = (gs.size && !gs.has(c.dataset.grade)) || (es.size && !es.has(c.dataset.era));
         if (!c.hidden) shown++;
       }});
       let m = grid.querySelector('.gempty');
@@ -553,16 +554,17 @@ footer p {{ margin:4px 0; }}
         if (!m) {{ m = document.createElement('p'); m.className = 'gempty'; m.textContent = 'この条件に合う商品はありません。'; grid.appendChild(m); }}
       }} else if (m) m.remove();
     }});
-    const on = g !== 'ALL' || era !== 'ALL';
+    btns.forEach(x => x.classList.toggle('on', x.dataset.g === 'ALL' ? !gs.size : gs.has(x.dataset.g)));
+    ebtns.forEach(x => x.classList.toggle('on', x.dataset.e === 'ALL' ? !es.size : es.has(x.dataset.e)));
+    const on = gs.size > 0 || es.size > 0;
     bar.classList.toggle('active', on); state.hidden = !on;
   }};
+  const toggle = (set, v) => {{ if (v === 'ALL') set.clear(); else if (set.has(v)) set.delete(v); else set.add(v); }};
   const btns = document.querySelectorAll('.f');
-  const setG = v => {{ g = v; btns.forEach(x => x.classList.toggle('on', x.dataset.g === v)); }};
-  btns.forEach(b => b.addEventListener('click', () => {{ setG(b.dataset.g); apply(); }}));
+  btns.forEach(b => b.addEventListener('click', () => {{ toggle(gs, b.dataset.g); apply(); }}));
   const ebtns = document.querySelectorAll('.fe');
-  const setE = v => {{ era = v; ebtns.forEach(x => x.classList.toggle('on', x.dataset.e === v)); }};
-  ebtns.forEach(b => b.addEventListener('click', () => {{ setE(b.dataset.e); apply(); }}));
-  document.getElementById('freset').addEventListener('click', () => {{ setG('ALL'); setE('ALL'); apply(); }});
+  ebtns.forEach(b => b.addEventListener('click', () => {{ toggle(es, b.dataset.e); apply(); }}));
+  document.getElementById('freset').addEventListener('click', () => {{ gs.clear(); es.clear(); apply(); }});
   document.getElementById('sort').addEventListener('change', ev => {{
     const k = ev.target.value;
     grids.forEach(grid => [...grid.querySelectorAll('.card')].sort((a, b) => k === 'off'
