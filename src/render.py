@@ -147,6 +147,50 @@ def _norm(s: str) -> str:
     return re.sub(r"[\s・()（）\[\]]", "", s).upper()
 
 
+_GRADES = ("HGUC", "HGCE", "HGFC", "HGAC", "HGAW", "MGSD", "HG", "RG", "MG", "PG", "RE/100", "EG")
+
+
+def _clean(s: str, keep_space: bool = False) -> str:
+    import unicodedata
+    s = unicodedata.normalize("NFKC", s).upper()
+    s = s.replace("Ⅱ", "II").replace("Ⅲ", "III").replace("ダブルゼータ", "ZZ")
+    s = re.sub(r"1/\d+", " ", s)
+    s = re.sub(r"[・()（）\[\]［］\-‐=+＋.,{}]", " " if keep_space else "", s)
+    return re.sub(r"\s+", "|" if keep_space else "", s).strip("|")
+
+
+_KANA = "ァ-ヴー"
+
+
+def pred_match(name: str, title: str) -> bool:
+    """再販情報の商品名（「HGUC ガンダムEz-8」など）がAmazonの商品名に当たるか。
+    グレードが一致し、名前の各語がAmazon側の語の切れ目にそろって含まれていれば一致とみなす
+    （「ジ・オ」が「ジオング」に、「ヴィダール」が「キマリスヴィダール」に当たらないように）。"""
+    name = re.sub(r"（[^）]*(店|空港|サイドF|サテライト|東京|福岡|渋谷|新千歳|同)[^）]*）", "", name).strip()
+    words = name.split()
+    if not words:
+        return False
+    g = words[0].upper()
+    if g in _GRADES:
+        words = words[1:]
+        tg = title.upper()
+        if g == "HG":
+            ok = re.search(r"(?<![A-Z])HG(UC|CE|FC|AC|AW)?(?![A-Z])", tg)
+        else:
+            ok = re.search(r"(?<![A-Z])" + re.escape(g) + r"(?![A-Z])", tg)
+        if not ok:
+            return False
+    t = "|" + _clean(title, keep_space=True) + "|"
+    keys = [k for k in (_clean(w) for w in words) if k and k != "ガンダム"]
+    if not keys:
+        return False
+    for k in keys:
+        pat = r"\|?".join(re.escape(c) for c in k)
+        if not re.search(f"(?<![{_KANA}]){pat}(?![{_KANA}])", t):
+            return False
+    return True
+
+
 def predictions_html(pred: dict | None, fair: list[Product]) -> str:
     if not pred:
         return ""
@@ -155,21 +199,36 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
     for d in pred["days"]:
         lis = []
         for name in d["items"]:
-            key = _norm(name.split("（")[0])
-            hit = next((p for t, p in fair_by_title.items() if key and key in _norm(t)), None)
+            hit = next((p for t, p in fair_by_title.items() if pred_match(name, t)), None)
             tail = (f' <a class="status ok" href="{e(hit.url)}" target="_blank" rel="sponsored noopener">'
                     f'{buy_label(hit)}</a>') if hit else ""
             lis.append(f"<li>{e(name)}{tail}</li>")
         cls = "pk-pred" if d["kind"] == "予測" else "pk-real"
         days.append(f'''<div class="pday"><div class="pdate">{e(d["date"])}
   <span class="pk {cls}">{e(d["kind"])}</span></div><ul>{"".join(lis)}</ul></div>''')
+    hits = sum(1 for d in pred["days"] for n in d["items"]
+               if any(pred_match(n, t) for t in fair_by_title))
+    extra = ""
+    if pred.get("december"):
+        lis = []
+        for name in pred["december"]:
+            hit = next((p for t, p in fair_by_title.items() if pred_match(name, t)), None)
+            tail = (f' <a class="status ok" href="{e(hit.url)}" target="_blank" rel="sponsored noopener">'
+                    f'{buy_label(hit)}</a>') if hit else ""
+            lis.append(f"<li>{e(name)}{tail}</li>")
+        extra += f'''<div class="pday pwide"><div class="pdate">12月の再販予定（日付未定）
+  <span class="pk pk-pred">予測</span></div><ul class="cols">{"".join(lis)}</ul></div>'''
+    for g in pred.get("pbandai", []):
+        extra += f'''<div class="pday"><div class="pdate">プレバン再販 {e(g["date"])}
+  <span class="pk pk-pb">受付</span></div><ul>{"".join(f"<li>{e(n)}</li>" for n in g["items"])}</ul></div>'''
     srcs = "・".join(f'<a href="{e(s["url"])}" target="_blank" rel="noopener">{e(s["name"])}</a>'
                     for s in pred["sources"])
     return f'''
 <section class="rq pred">
-  <h3>今週の再販予想・入荷報告 <small>{e(pred["week"])}</small></h3>
+  <h3>再販予想・入荷報告 <small>{e(pred["week"])}（{e(pred.get("updated", ""))}更新）</small></h3>
   <p class="src">{e(pred["note"])}<br>出典：{srcs}</p>
-  <div class="pgrid">{"".join(days)}</div>
+  <p class="src">このうち <b>{hits}件</b> は、いまAmazonで定価以下・定価並みで買えます（緑のボタン）。</p>
+  <div class="pgrid">{"".join(days)}{extra}</div>
 </section>'''
 
 
@@ -177,10 +236,9 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
            sample: bool = False, pred: dict | None = None, snapshot: bool = False) -> str:
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
-    pred_keys = [_norm(n.split("（")[0]) for d in (pred or {}).get("days", []) for n in d["items"]]
+    pred_names = [n for d in (pred or {}).get("days", []) for n in d["items"]] + list((pred or {}).get("december", []))
     def in_pred(p):
-        t = _norm(p.title)
-        return any(k and k in t for k in pred_keys)
+        return any(pred_match(n, p.title) for n in pred_names)
     featured = [p for p in fair if p.is_new or p.resale_quarter or in_pred(p)]
     featured.sort(key=lambda p: (not p.is_new, -max(p.off_pct or 0, p.market_off_pct or 0)))
     for p in featured:
@@ -296,8 +354,7 @@ select {{ margin-left:auto; }}
 .card::after {{ left:5px; bottom:5px; border-right:none; border-top:none; border-radius:0 0 0 6px; }}
 .card {{ transition:transform .18s cubic-bezier(.2,.8,.3,1.2), box-shadow .18s, border-color .18s; transform-origin:center bottom; }}
 .card:hover {{ border-color:var(--mint); box-shadow:0 0 0 1px rgba(16,163,122,.3), 0 14px 30px rgba(16,163,122,.22); transform:scale(1.12); z-index:5; }}
-.card:hover + .card, .card:has(+ .card:hover) {{ transform:scale(1.04); z-index:4; }}
-@media (hover:none) {{ .card:hover, .card:hover + .card, .card:has(+ .card:hover) {{ transform:none; }} }}
+@media (hover:none) {{ .card:hover {{ transform:none; }} }}
 .thumb {{ position:relative; aspect-ratio:1/1; margin:0; background:#fff; overflow:hidden; border-bottom:1px solid #eef3f1; }}
 .thumb img {{ width:100%; height:100%; object-fit:contain; display:block; }}
 .noimg {{ display:grid; place-items:center; height:100%; color:#9aa; font-size:12px; letter-spacing:.1em; }}
@@ -347,7 +404,8 @@ select {{ margin-left:auto; }}
 .pday {{ background:#f6faf9; border:1px solid var(--line); border-radius:10px; padding:10px 14px; }}
 .pdate {{ font-weight:800; margin-bottom:4px; }} .pday ul {{ margin:0; padding-left:18px; font-size:13px; }} .pday li {{ margin:3px 0; }}
 .pk {{ font-size:10px; border-radius:999px; padding:1px 8px; margin-left:6px; font-weight:700; vertical-align:2px; }}
-.pk-pred {{ background:#e1f0fb; color:var(--sky); }} .pk-real {{ background:#e3f6ef; color:var(--mint); }}
+.pk-pred {{ background:#e1f0fb; color:var(--sky); }} .pk-pb {{ background:#fdeee0; color:#b8641a; }}
+.pwide {{ grid-column:1/-1; }} .cols {{ columns:3 220px; }} .pk-real {{ background:#e3f6ef; color:var(--mint); }}
 .about {{ background:linear-gradient(135deg, #e8f8f2, #eef6fd); border:1px solid var(--line2); border-radius:16px;
   padding:22px 26px; margin-top:28px; font-size:14px; position:relative; overflow:hidden; }}
 .about h2 {{ font-family:var(--mono); font-size:12px; margin:0 0 6px; color:var(--mint); font-weight:400; letter-spacing:.14em; }}
@@ -393,7 +451,7 @@ footer p {{ margin:4px 0; }}
     <p class="clead">バンダイ公式の再販リストとファンサイトの再販報告のうち、Amazonで定価以下・定価並みで買える商品です。{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
   <div class="grid grid-feat">{featured_html}</div>
   <details class="more">
-    <summary>今週の再販予想・入荷報告／今期の公式再販リストを見る</summary>
+    <summary>再販予想・入荷報告・プレバン再販／公式再販リストを見る</summary>
     {predictions_html(pred, fair)}
     {"".join(resale_html)}
   </details>
