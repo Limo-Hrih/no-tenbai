@@ -71,6 +71,8 @@ def main() -> None:
     ap.add_argument("--prev")
     ap.add_argument("--prev-asins", help="前日にAmazon本体が販売していたASINのJSON配列ファイル")
     ap.add_argument("--save-asins", help="今日Amazon本体が販売しているASINをこのJSONに保存")
+    ap.add_argument("--lite", action="store_true", help="Amazonの価格・画像を載せないテスト公開版を作る")
+    ap.add_argument("--notice", default="")
     ap.add_argument("--out", default=str(Path.home() / "preview_real.html"))
     args = ap.parse_args()
 
@@ -122,7 +124,8 @@ def main() -> None:
         state.unlink()
 
     subprocess.run([sys.executable, str(ROOT / "src" / "build.py"), "--real-snapshot",
-                    "--out", args.out], check=True)
+                    "--out", args.out] + (["--lite"] if args.lite else [])
+                   + (["--notice", args.notice] if args.notice else []), check=True)
     today_amz = [r for r in rows if r["amazon"]]
     print(f"Amazon本体の販売: {len(today_amz)}点")
     if args.save_asins:

@@ -77,7 +77,38 @@ def e(s) -> str:
     return html.escape(str(s), quote=True)
 
 
+# テスト公開版（Amazonの価格・画像を載せない版）。render(lite=True) で切り替える
+LITE = False
+PARTNER_TAG = "limolimo-22"
+
+
+def amazon_link(asin: str) -> str:
+    return f"https://www.amazon.co.jp/dp/{asin}?tag={PARTNER_TAG}"
+
+
+def lite_card(p: Product) -> str:
+    # Amazonの画像はAPI経由でしか使えないため、テスト公開版では画像を出さずグレード名の札にする
+    img = f'<div class="noimg gradetile">{e(grade_of(p.title))}</div>'
+    tags = ""
+    if p.is_new:
+        tags += '<span class="tg tg-new">NEW</span>'
+    if p.resale_quarter:
+        tags += '<span class="tg tg-re">再販</span>'
+    lp = f'<div class="price lp"><small>定価</small><span class="yen">¥</span>{p.list_price:,}</div>' if p.list_price else '<div class="price lp"></div>'
+    return f'''
+<a class="card" href="{e(amazon_link(p.asin))}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="0" data-price="{p.list_price or 0}">
+  <div class="thumb">{img}<div class="badge badge-even"><span class="badge-n">本体販売</span></div>{f'<div class="tags">{tags}</div>' if tags else ''}</div>
+  <div class="body">
+    <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
+    {lp}
+    <div class="meta golink">Amazonで価格を見る ›</div>
+  </div>
+</a>'''
+
+
 def card(p: Product, stamp: str) -> str:
+    if LITE:
+        return lite_card(p)
     b = p.best
     off = p.off_pct
     moff = p.market_off_pct
@@ -122,7 +153,7 @@ def resale_rows(resale: list[dict], fair_by_asin: dict[str, Product], stamp: str
     for r in resale:
         p = fair_by_asin.get(r.get("asin") or "")
         if p and p.best:
-            status = (f'<a class="status ok" href="{e(p.url)}" target="_blank" rel="sponsored noopener">'
+            status = (f'<a class="status ok" href="{e(amazon_link(p.asin) if LITE else p.url)}" target="_blank" rel="sponsored noopener">'
                       f'{buy_label(p)}<small>（{e(stamp)}時点）</small></a>')
         else:
             status = '<span class="status wait">Amazon本体の販売は確認できず</span>'
@@ -137,6 +168,8 @@ def resale_rows(resale: list[dict], fair_by_asin: dict[str, Product], stamp: str
 
 
 def buy_label(p: Product) -> str:
+    if LITE:
+        return "Amazon本体で販売中"
     if p.list_price and p.best.price > p.list_price:
         return f"Amazonで定価に近い値段 {yen(p.best.price)}"
     return f"Amazonで定価以下 {yen(p.best.price)}"
@@ -200,7 +233,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
         lis = []
         for name in d["items"]:
             hit = next((p for t, p in fair_by_title.items() if pred_match(name, t)), None)
-            tail = (f' <a class="status ok" href="{e(hit.url)}" target="_blank" rel="sponsored noopener">'
+            tail = (f' <a class="status ok" href="{e(amazon_link(hit.asin) if LITE else hit.url)}" target="_blank" rel="sponsored noopener">'
                     f'{buy_label(hit)}</a>') if hit else ""
             lis.append(f"<li>{e(name)}{tail}</li>")
         cls = "pk-pred" if d["kind"] == "予測" else "pk-real"
@@ -213,7 +246,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
         lis = []
         for name in pred["december"]:
             hit = next((p for t, p in fair_by_title.items() if pred_match(name, t)), None)
-            tail = (f' <a class="status ok" href="{e(hit.url)}" target="_blank" rel="sponsored noopener">'
+            tail = (f' <a class="status ok" href="{e(amazon_link(hit.asin) if LITE else hit.url)}" target="_blank" rel="sponsored noopener">'
                     f'{buy_label(hit)}</a>') if hit else ""
             lis.append(f"<li>{e(name)}{tail}</li>")
         extra += f'''<div class="pday pwide"><div class="pdate">12月の再販予定（日付未定）
@@ -233,7 +266,10 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
 
 
 def render(fair: list[Product], resale_groups: list[dict], generated_at: datetime,
-           sample: bool = False, pred: dict | None = None, snapshot: bool = False, notice: str = "") -> str:
+           sample: bool = False, pred: dict | None = None, snapshot: bool = False, notice: str = "",
+           lite: bool = False) -> str:
+    global LITE
+    LITE = lite
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
     pred_names = [n for d in (pred or {}).get("days", []) for n in d["items"]] + list((pred or {}).get("december", []))
@@ -267,7 +303,7 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <tbody>{resale_rows(grp["items"], fair_by_asin, stamp)}</tbody></table>
 </section>''')
 
-    if snapshot:
+    if snapshot and not lite:
         sample_banner = (f'<div class="sample">試作版：{e(stamp)}ごろにAmazon.co.jpの検索結果から集めた実データです（非公開の確認用）。'
                          '本番ではAmazonのAPIで毎日自動更新します。「今日から」の枠は2日分のデータがそろうと表示されます。</div>')
     else:
@@ -376,6 +412,9 @@ select {{ margin-left:auto; }}
 .tg {{ font-size:10px; font-weight:800; border-radius:6px; padding:2px 6px; }}
 .tg-half {{ background:#ffd600; color:#2a1d00; font-size:11px; box-shadow:0 1px 4px rgba(0,0,0,.2); }}
 .meta s {{ font-family:var(--mono); font-weight:700; }}
+.price.lp {{ font-size:20px; }} .price.lp small {{ font-family:inherit; font-size:11px; color:var(--sub); margin-right:4px; font-weight:700; }}
+.gradetile {{ font-family:var(--digi); font-size:30px; font-weight:900; color:#c9d6d2; letter-spacing:.06em; background:repeating-linear-gradient(45deg,#f7fbfa 0 10px,#f0f6f4 10px 20px); }}
+.golink {{ color:var(--mint-soft); font-weight:800; }}
 .tg-new {{ background:var(--alert); color:#fff; }} .tg-re {{ background:var(--sky); color:#fff; }}
 .body {{ padding:7px 10px 12px; display:flex; flex-direction:column; gap:1px; flex:1; }}
 .body h3 {{ font-size:12px; line-height:1.4; margin:0; font-weight:700; display:-webkit-box; -webkit-line-clamp:2;
@@ -455,8 +494,7 @@ footer p {{ margin:4px 0; }}
     <button class="fe on" data-e="ALL">全シリーズ</button><button class="fe" data-e="宇宙世紀">宇宙世紀</button><button class="fe" data-e="アナザー">アナザー</button><button class="fe" data-e="SD・その他">SD・その他</button>
     <span class="fstate" id="fstate" hidden>絞り込み中 <button type="button" id="freset">解除</button></span>
     <select id="sort" aria-label="並び替え">
-      <option value="off">お得な順</option>
-      <option value="price">価格が安い順</option>
+{'<option value="off">おすすめ順</option><option value="price">定価が安い順</option>' if LITE else '<option value="off">お得な順</option><option value="price">価格が安い順</option>'}
     </select>
 </div></nav>
 <main>
@@ -468,7 +506,7 @@ footer p {{ margin:4px 0; }}
 <section class="corner corner-resale">
   <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
     <h2>最新再販ガンプラ情報</h2>
-    <p class="clead">バンダイ公式の再販リストとファンサイトの再販報告のうち、Amazonで定価以下・定価並みで買える商品です。{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
+    <p class="clead">バンダイ公式の再販リストとファンサイトの再販報告のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
   <div class="grid grid-feat">{featured_html}</div>
   <details class="more">
     <summary>再販予想・入荷報告・プレバン再販／公式再販リストを見る</summary>
@@ -478,9 +516,9 @@ footer p {{ margin:4px 0; }}
 </section>
 <section class="corner" id="fair">
   <div class="chead"><span class="hud">SALE ／ 値下げ中</span>
-    <h2>今が買い時！ 値下げ中のガンプラ</h2>
-    <p class="clead"><b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけ。転売相場の半額以下や、定価から大幅値下げ中のものも。毎日更新。</p></div>
-  <div class="stampline">価格・在庫は {e(stamp)} 時点のものです。購入時はAmazon.co.jpに表示される価格が適用されます。</div>
+    <h2>{"転売価格なし！ Amazon本体で買えるガンプラ" if LITE else "今が買い時！ 値下げ中のガンプラ"}</h2>
+    <p class="clead">{"<b>Amazon.co.jp本体の販売</b>を毎日チェックして、確認できたものだけを並べています。値段はAmazonのページでご確認ください（定価より安いことも多いです）。" if LITE else "<b>Amazon.co.jp本体の販売</b>か、<b>定価＋5%以内</b>で新品が買えるものだけ。転売相場の半額以下や、定価から大幅値下げ中のものも。毎日更新。"}</p></div>
+  <div class="stampline">{f"Amazon本体の販売は {e(stamp)} ごろに確認したものです。価格・在庫は変わることがあります。" if LITE else f"価格・在庫は {e(stamp)} 時点のものです。購入時はAmazon.co.jpに表示される価格が適用されます。"}</div>
   <div class="grid" id="grid">{cards}</div>
 </section>
 <section class="about">
