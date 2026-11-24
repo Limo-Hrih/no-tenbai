@@ -98,7 +98,9 @@ def lite_card(p: Product) -> str:
     # Amazonの画像はAPI経由でしか使えないため、テスト公開版では画像を出さずグレード名の札にする
     img = f'<div class="noimg gradetile">{e(grade_of(p.title))}</div>'
     tags = ""
-    if p.is_new:
+    if p.is_restock:
+        tags += '<span class="tg tg-new">再入荷</span>'
+    elif p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
         tags += '<span class="tg tg-re">再販</span>'
@@ -135,7 +137,9 @@ def card(p: Product, stamp: str) -> str:
         tags += '<span class="tg tg-half">半額以下！</span>'
     elif best_off >= 30:
         tags += '<span class="tg tg-big">大幅値下げ中</span>'
-    if p.is_new:
+    if p.is_restock:
+        tags += '<span class="tg tg-new">再入荷</span>'
+    elif p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
         tags += '<span class="tg tg-re">再販</span>'
@@ -565,7 +569,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
 <section class="corner corner-resale">
   <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
     <h2>最新再販ガンプラ情報</h2>
-    <p class="clead">バンダイ公式の再販リストと、再販が見込まれる商品のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
+    <p class="clead">バンダイ公式の再販リストと、再販が見込まれる商品のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEW・再入荷は今日からAmazon本体で買えるようになった商品（再入荷は、以前にもAmazon本体で売っていた商品）。" if new_items else ""}</p></div>
   <div class="grid grid-feat">{featured_html}</div>
   <details class="more">
     <summary>再販予定・プレバン再販／公式再販リストを見る</summary>

@@ -118,6 +118,16 @@ def main() -> None:
         prev = [r["asin"] for r in parse(Path(args.prev)) if r["amazon"]]
     elif args.prev_asins and Path(args.prev_asins).exists():
         prev = json.loads(Path(args.prev_asins).read_text())
+    # 過去の日別ファイル（今日の分は除く）に一度でも出たASIN＝再入荷判定用
+    seen_file = data / "seen_amazon_asins.json.real"
+    daily = data / "state" / "daily"
+    today_file = Path(args.save_asins).resolve() if args.save_asins else None
+    seen = set()
+    for fp in sorted(daily.glob("*.json")):
+        if today_file and fp.resolve() == today_file:
+            continue
+        seen |= set(json.loads(fp.read_text()))
+    seen_file.write_text(json.dumps(sorted(seen)))
     if prev is not None:
         state.write_text(json.dumps(prev))
     elif state.exists():
@@ -133,9 +143,16 @@ def main() -> None:
         Path(args.save_asins).write_text(json.dumps(sorted(r["asin"] for r in today_amz), indent=0))
     if prev is not None:
         new = [r for r in today_amz if r["asin"] not in set(prev)]
-        print(f"今日から買えるようになった: {len(new)}点")
+        restock = [r for r in new if r["asin"] in seen]
+        print(f"今日から買えるようになった: {len(new)}点（うち再入荷 {len(restock)}点・新登場 {len(new) - len(restock)}点）")
         for r in new:
-            print(f"  NEW {r['asin']} ¥{r['amazon']} {r['title'][:50]}")
+            print(f"  {'再入荷' if r['asin'] in seen else 'NEW'} {r['asin']} ¥{r['amazon']} {r['title'][:50]}")
+    gone = sorted(set(prev or []) - {r["asin"] for r in today_amz})
+    if prev is not None:
+        titles = {r["asin"]: r["title"] for r in rows}
+        print(f"販売が消えた: {len(gone)}点")
+        for a in gone:
+            print(f"  GONE {a} {titles.get(a, '（今日の一覧になし）')[:50]}")
 
 
 if __name__ == "__main__":
