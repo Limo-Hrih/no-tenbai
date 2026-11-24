@@ -247,7 +247,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
         cls = "pk-pred" if d["kind"] == "予測" else "pk-real"
         days.append(f'''<div class="pday"><div class="pdate">{e(d["date"])}
   <span class="pk {cls}">{e(d["kind"])}</span></div><ul>{"".join(lis)}</ul></div>''')
-    hits = sum(1 for d in pred["days"] for n in d["items"]
+    hits = sum(1 for n in [n for d in pred["days"] for n in d["items"]] + list(pred.get("december", []))
                if any(pred_match(n, t) for t in fair_by_title))
     extra = ""
     if pred.get("december"):
@@ -257,8 +257,8 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
             tail = (f' <a class="status ok" href="{e(amazon_link(hit.asin) if LITE else hit.url)}" target="_blank" rel="sponsored noopener">'
                     f'{buy_label(hit)}</a>') if hit else ""
             lis.append(f"<li>{e(name)}{tail}</li>")
-        extra += f'''<div class="pday pwide"><div class="pdate">12月の再販予定（日付未定）
-  <span class="pk pk-pred">予測</span></div><ul class="cols">{"".join(lis)}</ul></div>'''
+        extra += f'''<div class="pday pwide"><div class="pdate">12月の再販予定
+  <span class="pk pk-pred">予定</span></div><ul class="cols">{"".join(lis)}</ul></div>'''
     for g in pred.get("pbandai", []):
         extra += f'''<div class="pday"><div class="pdate">プレバン再販 {e(g["date"])}
   <span class="pk pk-pb">受付</span></div><ul>{"".join(f"<li>{e(n)}</li>" for n in g["items"])}</ul></div>'''
@@ -266,8 +266,8 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
                     for s in pred["sources"])
     return f'''
 <section class="rq pred">
-  <h3>再販予想・入荷報告 <small>{e(pred["week"])}（{e(pred.get("updated", ""))}更新）</small></h3>
-  <p class="src">{e(pred["note"])}<br>出典：{srcs}</p>
+  <h3>再販予定・プレバン再販 <small>{e(pred["week"])}（{e(pred.get("updated", ""))}更新）</small></h3>
+  <p class="src">{e(pred["note"])}{"<br>プレバン再販の出典：" + srcs if srcs else ""}</p>
   <p class="src">このうち <b>{hits}件</b> は、いまAmazonで定価以下・定価並みで買えます（緑のボタン）。</p>
   <div class="pgrid">{"".join(days)}{extra}</div>
 </section>'''
@@ -565,10 +565,10 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
 <section class="corner corner-resale">
   <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
     <h2>最新再販ガンプラ情報</h2>
-    <p class="clead">バンダイ公式の再販リストとファンサイトの再販報告のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
+    <p class="clead">バンダイ公式の再販リストと、再販が見込まれる商品のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEWは今日からAmazon本体で買えるようになった商品。" if new_items else ""}</p></div>
   <div class="grid grid-feat">{featured_html}</div>
   <details class="more">
-    <summary>再販予想・入荷報告・プレバン再販／公式再販リストを見る</summary>
+    <summary>再販予定・プレバン再販／公式再販リストを見る</summary>
     {predictions_html(pred, fair)}
     {"".join(resale_html)}
   </details>
