@@ -81,7 +81,10 @@ def main() -> None:
 
     pred_file = ROOT / "data" / "predictions.json"
     pred = json.loads(pred_file.read_text(encoding="utf-8")) if pred_file.exists() else None
-    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred, snapshot=args.real_snapshot, notice=args.notice, lite=args.lite)
+    so_file = ROOT / "data" / "soldout.json.real"
+    so = json.loads(so_file.read_text(encoding="utf-8")) if args.real_snapshot and so_file.exists() else {}
+    soldout, data_date = so.get("items", []), so.get("date")
+    html = render(fair, resale, datetime.now(JST), sample=args.sample, pred=pred, soldout=soldout, data_date=data_date, snapshot=args.real_snapshot, notice=args.notice, lite=args.lite)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")

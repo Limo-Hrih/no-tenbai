@@ -36,6 +36,8 @@ class Product:
     is_new: bool = False            # 今日からAmazon本体の販売が始まった
     is_restock: bool = False        # 以前にもAmazon本体で売っていて、戻ってきた（再入荷）
     arrived: str | None = None      # Amazon本体で買えるようになった日（YYYY-MM-DD）。直近の分だけ
+    bought: int | None = None       # Amazonの表示「過去1か月で○点以上購入されました」の○
+    left: int | None = None         # Amazon本体の在庫が残りわずかなときの点数（Amazonの表示）
 
     @property
     def market_low(self) -> int | None:
@@ -106,7 +108,8 @@ def normalize(item: dict, catalog: dict) -> Product:
         lp, src = None, None
 
     return Product(asin, title, url, img, lp, src, offers,
-                   resale_quarter=cat.get("resale_quarter"))
+                   resale_quarter=cat.get("resale_quarter"),
+                   bought=cat.get("bought"), left=cat.get("left"))
 
 
 def choose_fair_offer(p: Product, tolerance: float = DEFAULT_TOLERANCE) -> Offer | None:

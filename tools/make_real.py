@@ -22,6 +22,7 @@ from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parent.parent
 S, PAD = 220, 6
+SOLDOUT_DAYS = 5  # 何回分の記録までさかのぼって「売り切れ」を出すか
 
 
 # ガンプラではない商品（食玩など）。収集側でも弾いているが、念のためここでも除く
@@ -33,12 +34,20 @@ def parse(path: Path) -> list[dict]:
     for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip() or line.startswith("#"):
             continue
-        a, amz, lp, med, n, img, title = line.split("|", 6)
+        parts = line.split("|")
+        if len(parts) >= 9 and re.fullmatch(r"\d*", parts[6]) and re.fullmatch(r"\d*", parts[7]):
+            # 新形式：購入数（過去1か月で○点以上）と、Amazon本体の残り点数つき
+            a, amz, lp, med, n, img, bought, left = parts[:8]
+            title = "|".join(parts[8:])
+        else:
+            a, amz, lp, med, n, img, title = line.split("|", 6)
+            bought = left = ""
         if NOT_KIT.search(title):
             continue
         rows.append(dict(asin=a.replace(".", ""), amazon=int(amz) if amz else None,
                          lp=int(lp) if lp else None, med=int(med) if med else None,
-                         n=int(n or 0), img=img.replace(".", ""), title=title))
+                         n=int(n or 0), img=img.replace(".", ""), title=title,
+                         bought=int(bought) if bought else None, left=int(left) if left else None))
     return rows
 
 
@@ -93,7 +102,8 @@ def main() -> None:
                       "itemInfo": {"title": {"displayValue": r["title"]}},
                       "images": {"primary": {"medium": {"url": image_uri(r["img"])}}},
                       "offersV2": {"listings": listings}})
-        c = {"asin": r["asin"], "official_name": r["title"]}
+        c = {"asin": r["asin"], "official_name": r["title"], "bought": r["bought"],
+             "left": r["left"] if r["amazon"] else None}
         if r["lp"]:
             c["official_price"] = r["lp"]
         catalog.append(c)
@@ -140,6 +150,25 @@ def main() -> None:
             continue
         arrivals[a] = {"date": start, "restock": any(a in h[1] for h in hist[:i + 1])}
     (data / "arrivals.json.real").write_text(json.dumps(arrivals))
+    # 売り切れ：直近の記録ではAmazon本体で売っていたのに、今日は売っていない商品
+    amz_today = {r["asin"] for r in rows if r["amazon"]}
+    by_asin = {r["asin"]: r for r in rows}
+    days = [h[0] for h in hist] + [today_date]
+    soldout = []
+    for i in range(len(hist) - 1, max(len(hist) - 1 - SOLDOUT_DAYS, -1), -1):
+        for a in hist[i][1]:
+            if a in amz_today or any(x["asin"] == a for x in soldout):
+                continue
+            if any(a in h[1] for h in hist[i + 1:]):
+                continue  # もっと後の日にも売っていた（その日の分で処理済み）
+            j = i
+            while j >= 0 and a in hist[j][1]:
+                j -= 1
+            r = by_asin.get(a)
+            soldout.append({"asin": a, "gone": days[i + 1], "arrived": hist[j + 1][0] if j >= 0 else None,
+                            "title": r["title"] if r else None,
+                            "image": image_uri(r["img"]) if r else None})
+    (data / "soldout.json.real").write_text(json.dumps({"date": today_date, "items": soldout}, ensure_ascii=False))
     if prev is not None:
         state.write_text(json.dumps(prev))
     elif state.exists():

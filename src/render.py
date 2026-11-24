@@ -82,6 +82,7 @@ def e(s) -> str:
 
 # 並べ替えの選択肢。「発売が新しい／古い順」は、Amazonの商品番号（ASIN）の登録順で近似する
 SORT_OPTIONS = ("<option value=\"off\">お得な順</option>"
+                "<option value=\"hot\">売れている順</option>"
                 "<option value=\"new\">発売が新しい順</option>"
                 "<option value=\"old\">発売が古い順</option>"
                 "<option value=\"price\">価格が安い順</option>"
@@ -145,14 +146,18 @@ def card(p: Product, stamp: str) -> str:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
         tags += '<span class="tg tg-re">再販</span>'
+    if p.left and b.is_amazon:
+        tags += f'<span class="tg tg-left">残り{p.left}点</span>'
     meta = []
+    if p.bought:
+        meta.append(f'<span class="hot">過去1か月で{p.bought:,}点以上購入</span>')
     if p.list_price and p.list_price > b.price:
         meta.append(f"希望価格 <s>{yen(p.list_price)}</s>")
     if moff is not None and moff >= 10:
         meta.append(f"転売相場 <s>{yen(p.market_low)}</s>")
     meta_html = "".join(f'<div class="meta">{m}</div>' for m in meta)
     return f'''
-<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-moff="{moff or 0}" data-loff="{off or 0}" data-lp="{p.list_price or 0}" data-asin="{e(p.asin)}" data-price="{b.price}">
+<a class="card" href="{e(p.url)}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(p.title))}" data-era="{e(era_of(p.title))}" data-off="{max(off or 0, moff or 0)}" data-moff="{moff or 0}" data-loff="{off or 0}" data-lp="{p.list_price or 0}" data-asin="{e(p.asin)}" data-price="{b.price}" data-bought="{p.bought or 0}">
   <div class="thumb">{img}{badge}{f'<div class="tags">{tags}</div>' if tags else ''}</div>
   <div class="body">
     <h3 title="{e(p.title)}">{e(short_title(p.title))}</h3>
@@ -280,7 +285,7 @@ def predictions_html(pred: dict | None, fair: list[Product]) -> str:
 
 
 def render(fair: list[Product], resale_groups: list[dict], generated_at: datetime,
-           sample: bool = False, pred: dict | None = None, snapshot: bool = False, notice: str = "",
+           sample: bool = False, pred: dict | None = None, soldout: list | None = None, data_date: str | None = None, snapshot: bool = False, notice: str = "",
            lite: bool = False) -> str:
     global LITE
     LITE = lite
@@ -288,10 +293,62 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
     fair_by_asin = {p.asin: p for p in fair}
     cards = "\n".join(card(p, stamp) for p in fair) or '<p class="empty">いま該当する商品はありません。</p>'
     # 一番上の「新着入荷」枠：この7日間にAmazon本体で買えるようになった商品（新しい順）
-    since = (generated_at - timedelta(days=ARRIVAL_DAYS)).strftime("%Y-%m-%d")
+    since = (datetime.strptime(data_date, "%Y-%m-%d") if data_date else generated_at)
+    since = (since - timedelta(days=ARRIVAL_DAYS)).strftime("%Y-%m-%d")
     new_items = sorted([p for p in fair if (p.arrived and p.arrived >= since) or p.is_new],
                        key=lambda p: (p.arrived or "9999", max(p.off_pct or 0, p.market_off_pct or 0)), reverse=True)
     arrivals_html = "\n".join(card(p, stamp) for p in new_items) or '<p class="empty">この1週間の新着はありません。入荷があればここに並びます。</p>'
+    md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"
+    # 今日の目玉：新着の中で、転売相場との差額がいちばん大きい商品（新着がなければ全体から）
+    def saving(p):
+        return max((p.market_low or 0) - p.best.price, (p.list_price or 0) - p.best.price, 0)
+    pool = [p for p in (new_items or fair) if p.best.is_amazon and saving(p) > 0]
+    hero = max(pool, key=saving) if pool and not LITE else None
+    hero_html = ""
+    if hero:
+        ref, ref_label = ((hero.market_low, "転売相場") if (hero.market_low or 0) >= (hero.list_price or 0)
+                          else (hero.list_price, "定価"))
+        hero_html = f'''
+  <a class="hero" href="{e(hero.url)}" target="_blank" rel="sponsored noopener">
+    <div class="hero-img">{f'<img src="{e(hero.image)}" alt="">' if hero.image else ""}</div>
+    <div class="hero-body">
+      <span class="hero-k">{"新着の目玉" if new_items else "いまの目玉"}{f"（{md(hero.arrived)} 入荷）" if hero.arrived else ""}</span>
+      <h3>{e(short_title(hero.title))}</h3>
+      <div class="hero-price"><span class="hero-ref">{ref_label} <s>{yen(ref)}</s></span><span class="hero-arrow">▶</span><span class="hero-now">Amazon本体 <b>{yen(hero.best.price)}</b></span></div>
+      <div class="hero-save"><b>{saving(hero):,}円</b> おトク{f"　<small>過去1か月で{hero.bought:,}点以上購入</small>" if hero.bought else ""}</div>
+      <span class="hero-btn">Amazonで見る ›</span>
+    </div>
+  </a>'''
+    # 売り切れた商品（入荷したのに、もう買えないもの）
+    soldout = soldout or []
+    so_cards = []
+    for x in soldout:
+        if not x.get("title"):
+            continue
+        t = x["title"]
+        when = (f"{md(x['arrived'])} 入荷 → " if x.get("arrived") else "") + f"{md(x['gone'])} 売り切れ"
+        so_cards.append(f'''
+<a class="card sold" href="{e(amazon_link(x["asin"]))}" target="_blank" rel="sponsored noopener" data-grade="{e(grade_of(t))}" data-era="{e(era_of(t))}" data-asin="{e(x["asin"])}">
+  <div class="thumb">{f'<img src="{e(x["image"])}" alt="" loading="lazy">' if x.get("image") and not LITE else f'<div class="noimg gradetile">{e(grade_of(t))}</div>'}<div class="soldmark">SOLD OUT</div></div>
+  <div class="body"><h3 title="{e(t)}">{e(short_title(t))}</h3><div class="meta soldwhen">{when}</div></div>
+</a>''')
+    soldout_html = (f'''
+  <div class="sohead"><h3>売り切れました <small>Amazon本体の販売が終わった商品（{len(soldout)}点）。次の入荷をお待ちください。</small></h3></div>
+  <div class="grid grid-sold">{"".join(so_cards)}</div>''' if so_cards else "")
+    today_str = data_date or generated_at.strftime("%Y-%m-%d")  # データを集めた日
+    n_today = sum(1 for p in fair if p.is_new or p.arrived == today_str)
+    n_gone = sum(1 for x in soldout if x["gone"] == today_str)
+    n_amz = sum(1 for p in fair if p.best.is_amazon)
+    stats_html = f'''<div class="stats"><span>今日の入荷 <b>{n_today}</b>点</span><span>売り切れ <b>{n_gone}</b>点</span><span>Amazon本体で買える <b>{n_amz}</b>点</span><small>{e(stamp)} 調べ</small></div>'''
+    # 売れ筋：Amazonに「過去1か月で○点以上購入」と出ている商品
+    hot = sorted([p for p in fair if p.bought and p.best.is_amazon], key=lambda p: -p.bought)[:12]
+    hot_html = (f'''
+<section class="corner corner-hot">
+  <div class="chead"><span class="hud">HOT ／ 売れてます</span>
+    <h2>いま売れてます！ なくなる前にチェック</h2>
+    <p class="clead">Amazonで「過去1か月で○点以上購入されました」と表示されている、売れ行きの良い商品です。人気の商品ほど、Amazon本体の在庫は早くなくなります。</p></div>
+  <div class="grid">{"".join(card(p, stamp) for p in hot)}</div>
+</section>''' if hot and not LITE else "")
     grade_btns = "".join(
         f'<button class="f" data-g="{g}">{g}</button>' for g in GRADES)
 
@@ -437,6 +494,26 @@ select {{ margin-left:auto; }}
 .more {{ margin:12px 0 2px; }}
 .more summary {{ cursor:pointer; font-size:13px; font-weight:700; color:#0d2147; padding:6px 0; }}
 .tg-big {{ background:#fff; color:var(--sale); border:1px solid var(--sale); font-size:10px; }}
+.stats {{ display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:0 0 12px; font-size:13px; font-weight:700; }}
+.stats span {{ background:#0d2147; color:#fff; border-radius:999px; padding:3px 14px; }} .stats b {{ font-family:var(--mono); font-size:18px; color:#7ff0c9; margin:0 2px; }}
+.stats small {{ color:var(--sub); font-weight:400; font-size:11px; }}
+.hero {{ display:flex; gap:18px; align-items:center; text-decoration:none; color:inherit; background:linear-gradient(100deg,#fff5f4,#fff 60%); border:2px solid var(--alert); border-radius:16px; padding:14px 18px; margin:0 0 14px; box-shadow:0 6px 20px rgba(239,79,67,.15); }}
+.hero:hover {{ box-shadow:0 10px 28px rgba(239,79,67,.28); }}
+.hero-img {{ flex:none; width:190px; aspect-ratio:1/1; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }} .hero-img img {{ width:100%; height:100%; object-fit:contain; }}
+.hero-body {{ min-width:0; }} .hero-k {{ display:inline-block; background:var(--alert); color:#fff; font-weight:800; font-size:12px; border-radius:6px; padding:2px 10px; }}
+.hero h3 {{ margin:6px 0 4px; font-size:20px; line-height:1.35; color:#0d2147; }}
+.hero-price {{ display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; font-size:14px; color:var(--sub); }}
+.hero-ref s {{ font-family:var(--mono); font-size:20px; font-weight:700; }} .hero-arrow {{ color:var(--alert); }}
+.hero-now {{ color:var(--ink); font-weight:700; }} .hero-now b {{ font-family:var(--mono); font-size:34px; font-weight:800; letter-spacing:-.01em; }}
+.hero-save {{ color:var(--sale); font-weight:800; font-size:15px; }} .hero-save b {{ font-family:var(--mono); font-size:26px; }} .hero-save small {{ color:var(--sub); font-weight:700; font-size:12px; }}
+.hero-btn {{ display:inline-block; margin-top:8px; background:var(--mint); color:#fff; font-weight:800; border-radius:999px; padding:6px 20px; font-size:14px; }}
+.sohead h3 {{ margin:18px 0 8px; font-size:16px; color:#5b6b67; }} .sohead small {{ font-weight:400; font-size:12px; color:var(--sub); margin-left:6px; }}
+.card.sold {{ background:#f3f5f5; }} .card.sold .thumb img {{ filter:grayscale(1); opacity:.55; }} .card.sold h3 {{ color:#7b8a86; }}
+.soldmark {{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-12deg); font-family:var(--digi); font-weight:900; font-size:17px; letter-spacing:.08em; color:#fff; background:rgba(40,50,48,.82); padding:4px 12px; border-radius:6px; white-space:nowrap; }}
+.soldwhen {{ color:#5b6b67; font-weight:700; white-space:normal; }}
+.tg-left {{ background:#b3261e; color:#fff; }} .hot {{ color:var(--sale); font-weight:700; }}
+.corner-hot .chead h2 {{ color:var(--sale); }}
+@media (max-width:640px) {{ .hero {{ flex-direction:column; align-items:stretch; padding:12px; gap:10px; }} .hero-img {{ width:100%; max-width:220px; margin:0 auto; }} .hero h3 {{ font-size:17px; }} .hero-now b {{ font-size:28px; }} }}
 .newbox {{ background:#fff5f4; border:1px solid rgba(255,111,97,.5); border-radius:14px; padding:14px; margin:14px 0 6px; }}
 .newbox h2 {{ margin:0 0 10px; font-size:16px; color:var(--alert); }} .newbox h2 small {{ color:var(--sub); font-weight:400; font-size:12px; }}
 .rq {{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px 8px; margin:16px 0; }}
@@ -561,8 +638,10 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
   <div class="chead"><span class="hud">NEW ARRIVAL ／ 新着入荷</span>
     <h2>入荷しました！ 最近買えるようになったガンプラ <small class="cnt">{len(new_items)}点</small></h2>
     <p class="clead">この1週間に、<b>Amazon.co.jp本体</b>で新しく買えるようになった商品です（再販・再入荷・新発売の予約）。毎日チェックして、入荷を確認できたものだけを載せています。人気の商品はすぐ売り切れるので、お早めに。</p></div>
-  <div class="grid grid-feat">{arrivals_html}</div>
+  {stats_html}{hero_html}
+  <div class="grid grid-feat">{arrivals_html}</div>{soldout_html}
 </section>
+{hot_html}
 <section class="corner" id="fair">
   <div class="chead"><span class="hud">SALE ／ 値下げ中</span>
     <h2>{"転売価格なし！ Amazon本体で買えるガンプラ" if LITE else "今が買い時！ 値下げ中のガンプラ"}</h2>
@@ -619,6 +698,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
   const n = (c, k) => +c.dataset[k] || 0;
   const cmp = {{
     off: (a, b) => n(b, 'off') - n(a, 'off') || n(a, 'price') - n(b, 'price'),
+    hot: (a, b) => n(b, 'bought') - n(a, 'bought') || n(b, 'off') - n(a, 'off'),
     new: (a, b) => b.dataset.asin.localeCompare(a.dataset.asin),
     old: (a, b) => a.dataset.asin.localeCompare(b.dataset.asin),
     price: (a, b) => n(a, 'price') - n(b, 'price'),
