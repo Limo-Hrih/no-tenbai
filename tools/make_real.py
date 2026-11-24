@@ -121,10 +121,12 @@ def main() -> None:
     # 過去の日別ファイル（今日の分は除く）に一度でも出たASIN＝再入荷判定用
     seen_file = data / "seen_amazon_asins.json.real"
     daily = data / "state" / "daily"
-    today_file = Path(args.save_asins).resolve() if args.save_asins else None
+    head = Path(args.today).read_text(encoding="utf-8").split("\n", 1)[0]
+    m = re.match(r"#\s*(\d{4}-\d{2}-\d{2})", head)
+    today_date = m.group(1) if m else "9999-99-99"
     seen = set()
     for fp in sorted(daily.glob("*.json")):
-        if today_file and fp.resolve() == today_file:
+        if fp.stem >= today_date:  # 今日以降の分は「過去」に含めない
             continue
         seen |= set(json.loads(fp.read_text()))
     seen_file.write_text(json.dumps(sorted(seen)))
