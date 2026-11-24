@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import html
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
+
+ARRIVAL_DAYS = 7  # 「新着入荷」枠に載せる日数
 
 from select_items import Product
 import base64 as _b64
@@ -98,8 +100,8 @@ def lite_card(p: Product) -> str:
     # Amazonの画像はAPI経由でしか使えないため、テスト公開版では画像を出さずグレード名の札にする
     img = f'<div class="noimg gradetile">{e(grade_of(p.title))}</div>'
     tags = ""
-    if p.is_restock:
-        tags += '<span class="tg tg-new">再入荷</span>'
+    if p.arrived:
+        tags += f'<span class="tg tg-new">{"再入荷" if p.is_restock else "入荷"} {int(p.arrived[5:7])}/{int(p.arrived[8:10])}</span>'
     elif p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
@@ -137,8 +139,8 @@ def card(p: Product, stamp: str) -> str:
         tags += '<span class="tg tg-half">半額以下！</span>'
     elif best_off >= 30:
         tags += '<span class="tg tg-big">大幅値下げ中</span>'
-    if p.is_restock:
-        tags += '<span class="tg tg-new">再入荷</span>'
+    if p.arrived:
+        tags += f'<span class="tg tg-new">{"再入荷" if p.is_restock else "入荷"} {int(p.arrived[5:7])}/{int(p.arrived[8:10])}</span>'
     elif p.is_new:
         tags += '<span class="tg tg-new">NEW</span>'
     if p.resale_quarter:
@@ -284,24 +286,12 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
     LITE = lite
     stamp = generated_at.strftime("%Y/%m/%d %H:%M")
     fair_by_asin = {p.asin: p for p in fair}
-    pred_names = [n for d in (pred or {}).get("days", []) for n in d["items"]] + list((pred or {}).get("december", []))
-    def in_pred(p):
-        return any(pred_match(n, p.title) for n in pred_names)
-    featured = [p for p in fair if p.is_new or p.resale_quarter or in_pred(p)]
-    featured.sort(key=lambda p: (not p.is_new, -max(p.off_pct or 0, p.market_off_pct or 0)))
-    for p in featured:
-        if in_pred(p) and not p.resale_quarter:
-            p.resale_quarter = "再販"
-    fset = {p.asin for p in featured}
-    rest = [p for p in fair if p.asin not in fset]
-    featured_html = "\n".join(card(p, stamp) for p in featured) or '<p class="empty">いまAmazonで定価以下になっている再販品はありません。</p>'
-    cards = "\n".join(card(p, stamp) for p in rest) or '<p class="empty">いま該当する商品はありません。</p>'
-    new_items = [p for p in fair if p.is_new]
-    new_html = (f'''
-<section class="newbox">
-  <h2>今日Amazon本体で買えるようになったガンプラ <small>{len(new_items)}点</small></h2>
-  <div class="grid">{"".join(card(p, stamp) for p in new_items)}</div>
-</section>''' if new_items else "")
+    cards = "\n".join(card(p, stamp) for p in fair) or '<p class="empty">いま該当する商品はありません。</p>'
+    # 一番上の「新着入荷」枠：この7日間にAmazon本体で買えるようになった商品（新しい順）
+    since = (generated_at - timedelta(days=ARRIVAL_DAYS)).strftime("%Y-%m-%d")
+    new_items = sorted([p for p in fair if (p.arrived and p.arrived >= since) or p.is_new],
+                       key=lambda p: (p.arrived or "9999", max(p.off_pct or 0, p.market_off_pct or 0)), reverse=True)
+    arrivals_html = "\n".join(card(p, stamp) for p in new_items) or '<p class="empty">この1週間の新着はありません。入荷があればここに並びます。</p>'
     grade_btns = "".join(
         f'<button class="f" data-g="{g}">{g}</button>' for g in GRADES)
 
@@ -439,6 +429,7 @@ select {{ margin-left:auto; }}
 .corner {{ margin:22px 0 0; }}
 .chead {{ margin:0 0 10px; }}
 .chead .hud {{ font-size:11px; }}
+.chead h2 .cnt {{ font-size:13px; color:var(--sub); font-weight:700; }}
 .chead h2 {{ font-size:22px; margin:0; line-height:1.35; color:#0d2147; }}
 .clead {{ margin:2px 0 0; font-size:12px; color:var(--sub); }} .clead b {{ color:var(--mint-soft); }}
 .corner-resale {{ background:#fff; border:1px solid #c7d6e6; border-radius:16px; padding:14px 16px 10px; }}
@@ -567,15 +558,10 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
 </div></nav>
 <main>
 <section class="corner corner-resale">
-  <div class="chead"><span class="hud">RESALE ／ 再販情報</span>
-    <h2>最新再販ガンプラ情報</h2>
-    <p class="clead">バンダイ公式の再販リストと、再販が見込まれる商品のうち、{"Amazon本体の販売を確認できた商品です。" if LITE else "Amazonで定価以下・定価並みで買える商品です。"}{f"NEW・再入荷は今日からAmazon本体で買えるようになった商品（再入荷は、以前にもAmazon本体で売っていた商品）。" if new_items else ""}</p></div>
-  <div class="grid grid-feat">{featured_html}</div>
-  <details class="more">
-    <summary>再販予定・プレバン再販／公式再販リストを見る</summary>
-    {predictions_html(pred, fair)}
-    {"".join(resale_html)}
-  </details>
+  <div class="chead"><span class="hud">NEW ARRIVAL ／ 新着入荷</span>
+    <h2>入荷しました！ 最近買えるようになったガンプラ <small class="cnt">{len(new_items)}点</small></h2>
+    <p class="clead">この1週間に、<b>Amazon.co.jp本体</b>で新しく買えるようになった商品です（再販・再入荷・新発売の予約）。毎日チェックして、入荷を確認できたものだけを載せています。人気の商品はすぐ売り切れるので、お早めに。</p></div>
+  <div class="grid grid-feat">{arrivals_html}</div>
 </section>
 <section class="corner" id="fair">
   <div class="chead"><span class="hud">SALE ／ 値下げ中</span>
@@ -598,7 +584,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
   <p>価格と在庫は表示時点のもので、変わることがあります。購入時にAmazon.co.jpに表示される価格と在庫が適用されます。</p>
   <p>本サイトに表示されるコンテンツの一部はAmazonから提供されています。このコンテンツは「現状のまま」提供され、随時変更または削除される場合があります。<br>CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON. THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.</p>
   <p>Amazonのアソシエイトとして、{SITE_NAME}は適格販売により収入を得ています。</p>
-  <p>再販情報の出典：株式会社BANDAI SPIRITS バンダイ ホビーサイト。当サイトはBANDAI SPIRITSおよびAmazonとは関係のない個人運営サイトです。</p>
+  <p>定価の出典：株式会社BANDAI SPIRITS バンダイ ホビーサイト。当サイトはBANDAI SPIRITSおよびAmazonとは関係のない個人運営サイトです。</p>
 </div></footer>
 <script>
 (() => {{

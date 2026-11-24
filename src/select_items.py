@@ -34,7 +34,8 @@ class Product:
     resale_quarter: str | None = None
 
     is_new: bool = False            # 今日からAmazon本体の販売が始まった
-    is_restock: bool = False        # is_new のうち、以前にもAmazon本体で売っていた（再入荷）
+    is_restock: bool = False        # 以前にもAmazon本体で売っていて、戻ってきた（再入荷）
+    arrived: str | None = None      # Amazon本体で買えるようになった日（YYYY-MM-DD）。直近の分だけ
 
     @property
     def market_low(self) -> int | None:

@@ -118,18 +118,28 @@ def main() -> None:
         prev = [r["asin"] for r in parse(Path(args.prev)) if r["amazon"]]
     elif args.prev_asins and Path(args.prev_asins).exists():
         prev = json.loads(Path(args.prev_asins).read_text())
-    # 過去の日別ファイル（今日の分は除く）に一度でも出たASIN＝再入荷判定用
+    # 過去の日別ファイル（今日より前）から、再入荷の判定と「いつ入荷したか」を求める
     seen_file = data / "seen_amazon_asins.json.real"
     daily = data / "state" / "daily"
     head = Path(args.today).read_text(encoding="utf-8").split("\n", 1)[0]
     m = re.match(r"#\s*(\d{4}-\d{2}-\d{2})", head)
     today_date = m.group(1) if m else "9999-99-99"
-    seen = set()
-    for fp in sorted(daily.glob("*.json")):
-        if fp.stem >= today_date:  # 今日以降の分は「過去」に含めない
-            continue
-        seen |= set(json.loads(fp.read_text()))
+    hist = [(fp.stem, set(json.loads(fp.read_text()))) for fp in sorted(daily.glob("*.json"))
+            if fp.stem < today_date]
+    seen = set().union(*[h[1] for h in hist]) if hist else set()
     seen_file.write_text(json.dumps(sorted(seen)))
+    # 入荷日＝いま続いている販売が始まった日。記録の一番古い日から続いているものは不明なので載せない
+    arrivals = {}
+    for r in rows:
+        if not r["amazon"] or not hist:
+            continue
+        a, start, i = r["asin"], today_date, len(hist) - 1
+        while i >= 0 and a in hist[i][1]:
+            start, i = hist[i][0], i - 1
+        if i < 0:
+            continue
+        arrivals[a] = {"date": start, "restock": any(a in h[1] for h in hist[:i + 1])}
+    (data / "arrivals.json.real").write_text(json.dumps(arrivals))
     if prev is not None:
         state.write_text(json.dumps(prev))
     elif state.exists():

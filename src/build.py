@@ -62,12 +62,13 @@ def main() -> None:
     if prev is not None:
         for p in fair:
             p.is_new = p.best.is_amazon and p.asin not in prev
-    # 過去のどこかの日にAmazon本体で売っていたASIN（再入荷の判定用）
-    seen_file = ROOT / "data" / "seen_amazon_asins.json.real"
-    if args.real_snapshot and seen_file.exists():
-        seen = set(json.loads(seen_file.read_text()))
+    # 最近Amazon本体で買えるようになった商品（入荷日つき）。tools/make_real.py が作る
+    arr_file = ROOT / "data" / "arrivals.json.real"
+    if args.real_snapshot and arr_file.exists():
+        arr = json.loads(arr_file.read_text())
         for p in fair:
-            p.is_restock = p.is_new and p.asin in seen
+            if p.asin in arr and p.best.is_amazon:
+                p.arrived, p.is_restock = arr[p.asin]["date"], arr[p.asin]["restock"]
     if not args.sample and not args.real_snapshot:
         state_file.parent.mkdir(parents=True, exist_ok=True)
         state_file.write_text(json.dumps(current, indent=0))
