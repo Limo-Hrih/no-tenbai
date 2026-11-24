@@ -471,11 +471,67 @@ select {{ margin-left:auto; }}
 footer {{ border-top:1px solid var(--line); background:#fff; padding:18px 20px; font-size:11px; color:var(--sub); }}
 footer p {{ margin:4px 0; }}
 [hidden] {{ display:none !important; }}
-@media (max-width:560px) {{
- .grid {{ grid-template-columns:repeat(3,1fr); gap:6px; }}
-  .badge-n {{ font-size:13px; }} .badge-l {{ font-size:7px; }} .price {{ font-size:18px; }} .meta {{ font-size:10px; white-space:normal; }}
-  select {{ margin-left:0; }} .about-lead {{ font-size:18px; }} .card::before, .card::after {{ width:8px; height:8px; }}
+/* ===== レスポンシブ ===== */
+/* Androidの「文字の自動拡大」で文字だけ大きくなり、カードが崩れるのを防ぐ */
+html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
+:root {{ --wrap:1180px; --cols:6; --gap:10px; }}
+.hwrap, main, footer .fwrap, .bar {{ max-width:var(--wrap); }}
+.grid {{ grid-template-columns:repeat(var(--cols), minmax(0, 1fr)); gap:var(--gap); }}
+/* 商品カードの中のタグは折り返しても崩れないように */
+.tags {{ left:5px; justify-content:flex-end; flex-wrap:wrap; }}
+.tg {{ white-space:nowrap; line-height:1.3; }}
+.body h3 {{ word-break:break-all; }}
+
+/* 小さめのスマホ（〜374px：iPhone SE・mini など） */
+@media (max-width:374px) {{
+  :root {{ --cols:2; --gap:8px; }}
+  main {{ padding-left:10px; padding-right:10px; }}
+}}
+/* スマホ（375〜479px） */
+@media (min-width:375px) and (max-width:479px) {{
+  :root {{ --cols:2; --gap:8px; }}
+  main {{ padding-left:12px; padding-right:12px; }}
+}}
+@media (max-width:479px) {{
+  .badge-n {{ font-size:15px; }} .badge-l {{ font-size:7px; }}
+  .badge-even .badge-n {{ font-size:11px; }}
+  .tg {{ font-size:9px; padding:1px 5px; }} .tg-half {{ font-size:10px; }}
+  .tg-big {{ display:none; }}  /* 左上の割引ラベルと重なるので、狭い画面では省く */
+  .body {{ padding:6px 8px 10px; }}
+  .body h3 {{ font-size:12px; }}
+  .price {{ font-size:22px; }} .price.lp {{ font-size:18px; }}
+  .meta {{ font-size:10px; white-space:normal; }}
+  .card::before, .card::after {{ width:8px; height:8px; }}
+  select {{ margin-left:0; }} .about {{ padding:18px 16px; }} .about-lead {{ font-size:18px; }}
+  .chead h2 {{ font-size:19px; }} .corner-resale {{ padding:12px 10px 8px; }}
+  .pgrid {{ grid-template-columns:1fr; }} .cols {{ columns:1; }}
   .rt th:nth-child(2), .rt td.rp {{ white-space:normal; }}
+}}
+/* 大きめのスマホ・小型タブレット（480〜767px） */
+@media (min-width:480px) and (max-width:767px) {{
+  :root {{ --cols:3; --gap:8px; }}
+  .price {{ font-size:22px; }} .meta {{ font-size:10px; white-space:normal; }}
+  .tg {{ font-size:9px; }}
+}}
+/* タブレット縦（768〜1023px） */
+@media (min-width:768px) and (max-width:1023px) {{ :root {{ --cols:4; }} }}
+/* タブレット横・小さめのノートPC（1024〜1279px） */
+@media (min-width:1024px) and (max-width:1279px) {{ :root {{ --cols:5; }} }}
+/* 一般的なPC（1280〜1599px） */
+@media (min-width:1280px) {{ :root {{ --cols:6; }} }}
+/* 大きめのモニター（1600〜1919px） */
+@media (min-width:1600px) {{ :root {{ --wrap:1500px; --cols:7; --gap:12px; }} }}
+/* フルHD（1920〜2559px） */
+@media (min-width:1920px) {{
+  :root {{ --wrap:1800px; --cols:8; --gap:14px; }}
+  .body h3 {{ font-size:13px; }} .price {{ font-size:28px; }} .meta {{ font-size:12px; }}
+}}
+/* ワイド・WQHD以上（2560px〜） */
+@media (min-width:2560px) {{
+  :root {{ --wrap:2400px; --cols:10; --gap:16px; }}
+  body {{ font-size:17px; }}
+  .body h3 {{ font-size:14px; }} .price {{ font-size:30px; }}
+  .badge-n {{ font-size:20px; }} .tg {{ font-size:11px; }}
 }}
 </style>
 </head>
