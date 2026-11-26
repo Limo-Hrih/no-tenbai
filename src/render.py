@@ -5,6 +5,8 @@ import html
 import re
 from datetime import datetime, timedelta
 
+CONTACT_X = "limo_hrih"
+CONTACT_MAIL = "yuatsupanda@gmail.com"
 ARRIVAL_DAYS = 7  # 「新着入荷」枠に載せる日数
 
 from select_items import Product
@@ -547,6 +549,7 @@ select {{ margin-left:auto; }}
 .sample {{ background:#fff7ec; border:1px solid #ffd2a8; color:#8a5a1f; padding:6px 12px; border-radius:8px; margin:10px 0 0; font-size:11px; }}
 footer {{ border-top:1px solid var(--line); background:#fff; padding:18px 20px; font-size:11px; color:var(--sub); }}
 footer p {{ margin:4px 0; }}
+footer .contact {{ margin-top:12px; padding-top:10px; border-top:1px dashed var(--line); font-size:13px; color:var(--ink); font-weight:700; }} footer .contact a {{ color:var(--mint-soft); }}
 [hidden] {{ display:none !important; }}
 /* ===== レスポンシブ ===== */
 /* Androidの「文字の自動拡大」で文字だけ大きくなり、カードが崩れるのを防ぐ */
@@ -669,6 +672,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
   <p>本サイトに表示されるコンテンツの一部はAmazonから提供されています。このコンテンツは「現状のまま」提供され、随時変更または削除される場合があります。<br>CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON. THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.</p>
   <p>Amazonのアソシエイトとして、{SITE_NAME}は適格販売により収入を得ています。</p>
   <p>定価の出典：株式会社BANDAI SPIRITS バンダイ ホビーサイト。当サイトはBANDAI SPIRITSおよびAmazonとは関係のない個人運営サイトです。</p>
+  <p class="contact">バグ報告やこのサイトへのご意見・ご要望は、X（旧Twitter）の <a href="https://x.com/{CONTACT_X}" target="_blank" rel="noopener">@{CONTACT_X}</a> までお気軽にどうぞ。メールの方は <a href="mailto:{CONTACT_MAIL}">{CONTACT_MAIL}</a> までお送りください。</p>
 </div></footer>
 <script>
 (() => {{
