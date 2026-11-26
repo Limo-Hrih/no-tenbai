@@ -333,7 +333,7 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <div class="body"><h3 title="{e(t)}">{e(short_title(t))}</h3><div class="meta soldwhen">{when}</div></div>
 </a>''')
     soldout_html = (f'''
-  <div class="sohead"><h3>売り切れました <small>Amazon本体の販売が終わった商品（{len(soldout)}点）。次の入荷をお待ちください。</small></h3></div>
+  <div class="sohead"><h3>もう売り切れました…… <span class="socnt">{len(so_cards)}点</span> <small>最近までAmazon本体で買えたのに、販売が終わった商品です。次の入荷をお待ちください。</small></h3></div>
   <div class="grid grid-sold">{"".join(so_cards)}</div>''' if so_cards else "")
     today_str = data_date or generated_at.strftime("%Y-%m-%d")  # データを集めた日
     n_today = sum(1 for p in fair if p.is_new or p.arrived == today_str)
@@ -347,8 +347,8 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <div class="chead"><span class="hud">HOT ／ 売れてます</span>
     <h2>いま売れてます！ なくなる前にチェック</h2>
     <p class="clead">Amazonで「過去1か月で○点以上購入されました」と表示されている、売れ行きの良い商品です。人気の商品ほど、Amazon本体の在庫は早くなくなります。</p></div>
-  <div class="grid">{"".join(card(p, stamp) for p in hot)}</div>
-</section>''' if hot and not LITE else "")
+  <div class="grid">{"".join(card(p, stamp) for p in hot)}</div>{soldout_html}
+</section>''' if hot and not LITE else (f'<section class="corner">{soldout_html}</section>' if soldout_html else ""))
     grade_btns = "".join(
         f'<button class="f" data-g="{g}">{g}</button>' for g in GRADES)
 
@@ -507,7 +507,12 @@ select {{ margin-left:auto; }}
 .hero-now {{ color:var(--ink); font-weight:700; }} .hero-now b {{ font-family:var(--mono); font-size:34px; font-weight:800; letter-spacing:-.01em; }}
 .hero-save {{ color:var(--sale); font-weight:800; font-size:15px; }} .hero-save b {{ font-family:var(--mono); font-size:26px; }} .hero-save small {{ color:var(--sub); font-weight:700; font-size:12px; }}
 .hero-btn {{ display:inline-block; margin-top:8px; background:var(--mint); color:#fff; font-weight:800; border-radius:999px; padding:6px 20px; font-size:14px; }}
-.sohead h3 {{ margin:18px 0 8px; font-size:16px; color:#5b6b67; }} .sohead small {{ font-weight:400; font-size:12px; color:var(--sub); margin-left:6px; }}
+.sohead h3 {{ margin:22px 0 8px; font-size:16px; color:#5b6b67; border-top:1px dashed var(--line2); padding-top:14px; }} .socnt {{ font-family:var(--mono); color:var(--sale); }}
+.grid.grid-sold {{ grid-template-columns:repeat(auto-fill, minmax(76px, 1fr)); gap:6px; }}
+.grid-sold .card::before, .grid-sold .card::after {{ display:none; }} .grid-sold .card:hover {{ transform:scale(1.25); }}
+.grid-sold .body {{ padding:3px 5px 5px; }} .grid-sold .body h3 {{ font-size:10px; line-height:1.3; min-height:2.6em; }}
+.grid-sold .meta {{ font-size:9px; line-height:1.3; }} .grid-sold .soldmark {{ font-size:10px; padding:2px 6px; }}
+.grid-sold .gradetile {{ font-size:16px; }} .sohead small {{ font-weight:400; font-size:12px; color:var(--sub); margin-left:6px; }}
 .card.sold {{ background:#f3f5f5; }} .card.sold .thumb img {{ filter:grayscale(1); opacity:.55; }} .card.sold h3 {{ color:#7b8a86; }}
 .soldmark {{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-12deg); font-family:var(--digi); font-weight:900; font-size:17px; letter-spacing:.08em; color:#fff; background:rgba(40,50,48,.82); padding:4px 12px; border-radius:6px; white-space:nowrap; }}
 .soldwhen {{ color:#5b6b67; font-weight:700; white-space:normal; }}
@@ -639,7 +644,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
     <h2>入荷しました！ 最近買えるようになったガンプラ <small class="cnt">{len(new_items)}点</small></h2>
     <p class="clead">この1週間に、<b>Amazon.co.jp本体</b>で新しく買えるようになった商品です（再販・再入荷・新発売の予約）。毎日チェックして、入荷を確認できたものだけを載せています。人気の商品はすぐ売り切れるので、お早めに。</p></div>
   {stats_html}{hero_html}
-  <div class="grid grid-feat">{arrivals_html}</div>{soldout_html}
+  <div class="grid grid-feat">{arrivals_html}</div>
 </section>
 {hot_html}
 <section class="corner" id="fair">
