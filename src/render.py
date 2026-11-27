@@ -659,10 +659,9 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
 </section>
 <section class="about">
   <h2>WHY WE MADE THIS ／ このサイトを作った理由</h2>
-  <p class="about-lead">転売ヤーを、ガンプラの世界からなくしたい。</p>
-  <p>「転売ヤーのせいで高い」と思われがちですが、<b>定価より安い</b>ガンプラも、<b>転売相場の半額以下</b>のガンプラも、まだまだあります。</p>
-  <p>転売ヤーを責めても、何も変わりません。転売ヤーが一番困るのは、みんなが言い値で買わず、正規の値段のガンプラをどんどん買うこと。</p>
-  <p>だから{SITE_NAME}は、転売価格なしで買えるガンプラだけを毎日まとめています。欲しかったあのキット、定価で手に入るかもしれません。</p>
+  <p class="about-lead">定価で買うことが、転売ヤー対策になる？</p>
+  <p>転売ヤーが一番こまるのは、転売価格ではなく、正規の値段でガンプラを買うこと。そして探すと結構、定価や安価のガンプラはあります。中には半額近いものも！</p>
+  <p>そこで、Amazonで買えるようになったばかりのガンプラを紹介するサイトを作ってみました。毎日更新。意外な掘り出しものや、気になっていたあのキットに出会えるかも！</p>
 </section>
 {sample_banner}
 </main>
@@ -672,7 +671,7 @@ html {{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }}
   <p>本サイトに表示されるコンテンツの一部はAmazonから提供されています。このコンテンツは「現状のまま」提供され、随時変更または削除される場合があります。<br>CERTAIN CONTENT THAT APPEARS ON THIS SITE COMES FROM AMAZON. THIS CONTENT IS PROVIDED 'AS IS' AND IS SUBJECT TO CHANGE OR REMOVAL AT ANY TIME.</p>
   <p>Amazonのアソシエイトとして、{SITE_NAME}は適格販売により収入を得ています。</p>
   <p>定価の出典：株式会社BANDAI SPIRITS バンダイ ホビーサイト。当サイトはBANDAI SPIRITSおよびAmazonとは関係のない個人運営サイトです。</p>
-  <p class="contact">バグ報告やこのサイトへのご意見・ご要望は、X（旧Twitter）の <a href="https://x.com/{CONTACT_X}" target="_blank" rel="noopener">@{CONTACT_X}</a> までお気軽にどうぞ。メールの方は <a href="mailto:{CONTACT_MAIL}">{CONTACT_MAIL}</a> までお送りください。</p>
+  <p class="contact">ご意見・ご要望：<a href="https://x.com/{CONTACT_X}" target="_blank" rel="noopener">X @{CONTACT_X}</a> ／ <a href="mailto:{CONTACT_MAIL}">{CONTACT_MAIL}</a></p>
 </div></footer>
 <script>
 (() => {{
