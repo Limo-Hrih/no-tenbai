@@ -301,11 +301,17 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
                        key=lambda p: (p.arrived or "9999", max(p.off_pct or 0, p.market_off_pct or 0)), reverse=True)
     arrivals_html = "\n".join(card(p, stamp) for p in new_items) or '<p class="empty">この1週間の新着はありません。入荷があればここに並びます。</p>'
     md = lambda d: f"{int(d[5:7])}/{int(d[8:10])}"
-    # 今日の目玉：新着の中で、転売相場との差額がいちばん大きい商品（新着がなければ全体から）
+    # 今日の目玉：新着の中で、いちばん売れている商品（Amazonの「過去1か月で○点以上購入」が多い順。同じなら安くなっている額）。
+    # 売れ行きの数字がない新着（発売前の新製品など）は目玉にしない。新着に売れ行きの数字がなければ全体から選ぶ（2026-11-28 マスター指示）
     def saving(p):
         return max((p.market_low or 0) - p.best.price, (p.list_price or 0) - p.best.price, 0)
-    pool = [p for p in (new_items or fair) if p.best.is_amazon and saving(p) > 0]
-    hero = max(pool, key=saving) if pool and not LITE else None
+    pick = lambda ps: max(ps, key=lambda p: (p.bought, saving(p))) if ps else None
+    hero = pick([p for p in new_items if p.best.is_amazon and p.bought])
+    hero_is_new = hero is not None
+    if hero is None:
+        hero = pick([p for p in fair if p.best.is_amazon and p.bought])
+    if LITE:
+        hero = None
     hero_html = ""
     if hero:
         ref, ref_label = ((hero.market_low, "転売相場") if (hero.market_low or 0) >= (hero.list_price or 0)
@@ -314,10 +320,10 @@ def render(fair: list[Product], resale_groups: list[dict], generated_at: datetim
   <a class="hero" href="{e(hero.url)}" target="_blank" rel="sponsored noopener">
     <div class="hero-img">{f'<img src="{e(hero.image)}" alt="">' if hero.image else ""}</div>
     <div class="hero-body">
-      <span class="hero-k">{"新着の目玉" if new_items else "いまの目玉"}{f"（{md(hero.arrived)} 入荷）" if hero.arrived else ""}</span>
+      <span class="hero-k">{"新着の目玉" if hero_is_new else "いまの目玉"}{f"（{md(hero.arrived)} 入荷）" if hero_is_new and hero.arrived else ""}</span>
       <h3>{e(short_title(hero.title))}</h3>
       <div class="hero-price"><span class="hero-ref">{ref_label} <s>{yen(ref)}</s></span><span class="hero-arrow">▶</span><span class="hero-now">Amazon本体 <b>{yen(hero.best.price)}</b></span></div>
-      <div class="hero-save"><b>{saving(hero):,}円</b> おトク{f"　<small>過去1か月で{hero.bought:,}点以上購入</small>" if hero.bought else ""}</div>
+      <div class="hero-save">{f"<b>{saving(hero):,}円</b> おトク　" if saving(hero) > 0 else ""}<small>過去1か月で{hero.bought:,}点以上購入</small></div>
       <span class="hero-btn">Amazonで見る ›</span>
     </div>
   </a>'''
